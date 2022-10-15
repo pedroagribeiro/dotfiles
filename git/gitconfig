@@ -1,0 +1,62 @@
+[user]
+    name = Pedro Ribeiro
+    useConfigOnly = true
+[include]
+    path = ~/.dotfiles/git/personal.config
+[includeIf "gitdir:~/Code/AlticeLabs/"]
+    path = ~/.dotfiles/git/alticelabs.config
+[web]
+    browser = google-chrome-stable
+[core]
+    autocrlf = input
+    editor = nvim
+    excludesfile = ~/.dotfiles/git/gitignore
+    attributesfile = ~/.dotfiles/git/gitattributes
+    pager = delta
+[init]
+    defaultBranch = main
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    light = false
+    features = decorations
+    whitespace-error-style = 22 reverse
+[commit]
+    gpgsign = true
+    verbose = true
+    template = ~/.dotfiles/git/git-commit-msg-template
+[tag]
+    gpgsign = true
+[alias]
+    a = add
+    b = branch
+    c = commit
+    cl = clone
+    co = checkout
+    h = history
+    l = pull
+    p = push
+    fz = fuzzy
+    ht = history
+    rb = rebase
+    rw = review
+    st = status
+    co-pr = !sh -c 'git fetch origin pull/$1/head:pr/$1 && git checkout pr/$1' -
+    patch   = !git --no-pager diff
+    standup = !git log --oneline --graph --all --no-merges --author=$USER --since '9am last week'
+[branch]
+    autosetuprebase = always
+[log]
+    date = auto:human
+[merge]
+    tool = vimdiff
+    log = true
+[push]
+    default = simple
+[pull]
+    rebase = true
+[color]
+    ui = true
+[diff]
+    tool = vimdiff
+    submodule = log
