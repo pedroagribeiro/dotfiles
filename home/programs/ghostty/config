@@ -12,7 +12,7 @@ window-padding-y = 12
 window-padding-balance = true
 
 macos-icon = xray
-macos-titlebar-style = tabs
+macos-titlebar-style = hidden
 macos-titlebar-proxy-icon = hidden
 macos-non-native-fullscreen = true
 
