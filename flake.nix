@@ -64,6 +64,12 @@
           nixos = true;
           users = [ "pedro" ];
         };
+
+        MacBook-Pro-de-Healthium-6 = {
+          system = "aarch64-darwin";
+          darwin = true;
+          users = [ "pedroribeiro" ];
+        };
       };
 
       # ── Users (home-manager) ─────────────────────────────────────────────
@@ -112,6 +118,19 @@
               };
             })
             (final: prev: { zed-editor = zed.packages.${prev.stdenv.hostPlatform.system}.default; })
+            (final: prev: {
+              unstable = import nixpkgs-unstable {
+                system = prev.stdenv.hostPlatform.system;
+                config.allowUnfree = true;
+              };
+            })
+          ];
+          extraSpecialArgs = { };
+        };
+
+        "pedroribeiro" = {
+          name = "Pedro Ribeiro";
+          overlays = [
             (final: prev: {
               unstable = import nixpkgs-unstable {
                 system = prev.stdenv.hostPlatform.system;
