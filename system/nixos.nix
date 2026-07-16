@@ -10,8 +10,9 @@
   imports = [
     ./hosts/${hostname}/hardware.nix
     ./hosts/${hostname}.nix
-  ]
-  ++ map (username: import ./timers/${username}.nix username) (lib.attrNames users);
+  ];
+
+  # ++ map (username: import ./timers/${username}.nix username) (lib.attrNames users);
 
   # ── Nix ─────────────────────────────────────────────────────────────────
   nix.settings.experimental-features = [
