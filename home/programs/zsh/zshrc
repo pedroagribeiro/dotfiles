@@ -6,7 +6,7 @@
 #   (_)___|___/_| |_|_|  \___|
 
 export DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
-export SPELLS="$HOME/.spells"
+# export SPELLS="$HOME/.spells"
 
 export HISTSIZE=100000
 export SAVEHIST=100000
@@ -19,7 +19,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-source $SPELLS/spells.init
+# source $SPELLS/spells.init
 
 for init_file in $(find $DOTFILES -type f -name "*.init" | sort); do
   source $init_file
