@@ -42,7 +42,7 @@ in
   dotfiles.programs.fd.enable = false;
   dotfiles.programs.figlet.enable = false;
   dotfiles.programs.fzf.enable = false;
-  dotfiles.programs.git.enable = false;
+  dotfiles.programs.git.enable = true;
   dotfiles.programs.glab.enable = false;
   dotfiles.programs.herdr.enable = false;
   dotfiles.programs.httpie.enable = false;
@@ -54,6 +54,7 @@ in
   dotfiles.programs.ripgrep.enable = false;
   dotfiles.programs.shellcheck.enable = false;
   dotfiles.programs.shfmt.enable = false;
+  dotfiles.programs.ssh.enable = true;
   dotfiles.programs.speedtest.enable = false;
   dotfiles.programs.unzip.enable = false;
   dotfiles.programs.wget.enable = false;
