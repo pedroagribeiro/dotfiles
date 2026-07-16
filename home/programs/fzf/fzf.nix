@@ -17,8 +17,10 @@
     FZF_DEFAULT_OPTS = "--height 50% --bind=ctrl-j:preview-down,ctrl-k:preview-up --reverse --inline-info --preview-window=right:60%";
   };
 
-  programs.zsh.envExtra = lib.mkIf config.dotfiles.programs.zsh.enable ''
-    source "$(fzf-share)/key-bindings.zsh"
-    source "$(fzf-share)/completion.zsh"
-  '';
+  programs.zsh.initContent = lib.mkIf config.dotfiles.programs.zsh.enable (lib.mkAfter ''
+    if [[ -t 0 ]]; then
+      source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
+      source "${pkgs.fzf}/share/fzf/completion.zsh"
+    fi
+  '');
 }
