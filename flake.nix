@@ -1,5 +1,5 @@
 {
-  description = "Nelson's Dotfiles";
+  description = "Pedro's Dotfiles";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -59,49 +59,17 @@
 
       # ── Hosts ────────────────────────────────────────────────────────────
       hosts = {
-        framework = {
-          system = "x86_64-linux";
-          nixos = true;
-          users = [ "nelson" ];
-        };
         thinkpad = {
           system = "x86_64-linux";
-          users = [ "nelson" ];
-        };
-        temis = {
-          system = "x86_64-linux";
           nixos = true;
-          users = [ "nelson" ];
-        };
-        "Remote-Nelson-Estevao" = {
-          system = "aarch64-darwin";
-          darwin = true;
-          users = [ "nelson.estevao" ];
+          users = [ "pedro" ];
         };
       };
 
       # ── Users (home-manager) ─────────────────────────────────────────────
       users = {
-        "nelson.estevao" = {
-          name = "Nelson Estevão";
-          extraGroups = [
-            "docker"
-          ];
-          overlays = [
-            claude-code.overlays.default
-            herdr.overlays.default
-            (final: prev: { zen-browser = zen-browser.packages.${prev.stdenv.hostPlatform.system}.default; })
-            (final: prev: {
-              unstable = import nixpkgs-unstable {
-                system = prev.stdenv.hostPlatform.system;
-                config.allowUnfree = true;
-              };
-            })
-          ];
-          extraSpecialArgs = { };
-        };
-        nelson = {
-          name = "Nelson Estevão";
+        pedro = {
+          name = "Pedro Ribeiro";
           extraGroups = [
             "docker"
             "libvirtd"
