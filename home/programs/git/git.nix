@@ -40,9 +40,7 @@
   // lib.listToAttrs (
     map (p: lib.nameValuePair "git/profiles/${p}.ini" (mkSymlink "profiles/${p}.ini")) [
       "personal"
-      "uminho"
-      "marmela"
-      "remote"
+      "nutrium"
     ]
   );
 }
