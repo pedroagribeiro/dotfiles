@@ -6,8 +6,7 @@
   ...
 }:
 {
-  # ghostty flake is not packaged for Darwin
-  home.packages = 
+  home.packages =
     with pkgs;
     [
       _1password-gui
