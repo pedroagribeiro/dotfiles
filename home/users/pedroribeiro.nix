@@ -1,0 +1,63 @@
+{
+  config,
+  lib,
+  pkgs,
+  hostname,
+  ...
+}:
+let
+  enableFor = hosts: lib.elem hostname hosts;
+  disableFor = hosts: !lib.elem hostname hosts;
+in
+{
+  # Shells
+  dotfiles.programs.zsh.enable = false;
+
+  # Terminals
+  dotfiles.programs.ghostty.enable = enableFor [ "MacBook-Pro-de-Healthium-6" ];
+  dotfiles.programs.wezterm.enable = false;
+
+  # Editors & IDEs
+  dotfiles.programs.nvim.enable = true;
+  dotfiles.programs.vscode.enable = false;
+
+  # Programming Languages
+  dotfiles.programs.elixir.enable = false;
+  dotfiles.programs.erlang.enable = false;
+
+  # Dev Tools
+  dotfiles.programs.bat.enable = false;
+  dotfiles.programs.btop.enable = false;
+  dotfiles.programs.claude.enable = false;
+  dotfiles.programs.codex.enable = false;
+  dotfiles.programs.colima.enable = false;
+  dotfiles.programs.cpufetch.enable = false;
+  dotfiles.programs.ctop.enable = false;
+  dotfiles.programs.curl.enable = false;
+  dotfiles.programs.cursor.enable = false;
+  dotfiles.programs.direnv.enable = false;
+  dotfiles.programs.docker.enable = false;
+  dotfiles.programs.eza.enable = false;
+  dotfiles.programs.fastfetch.enable = false;
+  dotfiles.programs.fd.enable = false;
+  dotfiles.programs.figlet.enable = false;
+  dotfiles.programs.fzf.enable = false;
+  dotfiles.programs.git.enable = false;
+  dotfiles.programs.glab.enable = false;
+  dotfiles.programs.herdr.enable = false;
+  dotfiles.programs.httpie.enable = false;
+  dotfiles.programs.hyperfine.enable = false;
+  dotfiles.programs.jj.enable = false;
+  dotfiles.programs.jq.enable = false;
+  dotfiles.programs.mise.enable = false;
+  dotfiles.programs.onefetch.enable = false;
+  dotfiles.programs.ripgrep.enable = false;
+  dotfiles.programs.shellcheck.enable = false;
+  dotfiles.programs.shfmt.enable = false;
+  dotfiles.programs.speedtest.enable = false;
+  dotfiles.programs.unzip.enable = false;
+  dotfiles.programs.wget.enable = false;
+  dotfiles.programs.zoxide.enable = false;
+
+  #dotfiles.packages.enable = true;
+}
