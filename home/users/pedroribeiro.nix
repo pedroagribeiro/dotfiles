@@ -11,7 +11,7 @@ let
 in
 {
   # Shells
-  dotfiles.programs.zsh.enable = false;
+  dotfiles.programs.zsh.enable = true;
 
   # Terminals
   dotfiles.programs.ghostty.enable = enableFor [ "MacBook-Pro-de-Healthium-6" ];
@@ -26,7 +26,7 @@ in
   dotfiles.programs.erlang.enable = false;
 
   # Dev Tools
-  dotfiles.programs.bat.enable = false;
+  dotfiles.programs.bat.enable = true;
   dotfiles.programs.btop.enable = false;
   dotfiles.programs.claude.enable = false;
   dotfiles.programs.codex.enable = false;
@@ -35,13 +35,13 @@ in
   dotfiles.programs.ctop.enable = false;
   dotfiles.programs.curl.enable = false;
   dotfiles.programs.cursor.enable = false;
-  dotfiles.programs.direnv.enable = false;
+  dotfiles.programs.direnv.enable = true;
   dotfiles.programs.docker.enable = false;
-  dotfiles.programs.eza.enable = false;
+  dotfiles.programs.eza.enable = true;
   dotfiles.programs.fastfetch.enable = false;
-  dotfiles.programs.fd.enable = false;
+  dotfiles.programs.fd.enable = true;
   dotfiles.programs.figlet.enable = false;
-  dotfiles.programs.fzf.enable = false;
+  dotfiles.programs.fzf.enable = true;
   dotfiles.programs.git.enable = true;
   dotfiles.programs.glab.enable = false;
   dotfiles.programs.herdr.enable = false;
@@ -49,16 +49,16 @@ in
   dotfiles.programs.hyperfine.enable = false;
   dotfiles.programs.jj.enable = false;
   dotfiles.programs.jq.enable = false;
-  dotfiles.programs.mise.enable = false;
+  dotfiles.programs.mise.enable = true;
   dotfiles.programs.onefetch.enable = false;
-  dotfiles.programs.ripgrep.enable = false;
+  dotfiles.programs.ripgrep.enable = true;
   dotfiles.programs.shellcheck.enable = false;
   dotfiles.programs.shfmt.enable = false;
   dotfiles.programs.ssh.enable = true;
   dotfiles.programs.speedtest.enable = false;
   dotfiles.programs.unzip.enable = false;
   dotfiles.programs.wget.enable = false;
-  dotfiles.programs.zoxide.enable = false;
+  dotfiles.programs.zoxide.enable = true;
 
   #dotfiles.packages.enable = true;
 }
