@@ -28,7 +28,7 @@ in
   # Dev Tools
   dotfiles.programs.bat.enable = true;
   dotfiles.programs.btop.enable = false;
-  dotfiles.programs.claude.enable = false;
+  dotfiles.programs.claude.enable = true;
   dotfiles.programs.codex.enable = false;
   dotfiles.programs.colima.enable = false;
   dotfiles.programs.cpufetch.enable = false;
