@@ -1,7 +1,5 @@
 AddKeysToAgent  yes
 Compression yes
 
-Include hosts/thinkpad.ini
-Include profiles/personal.ini
-Include profiles/nutrium.ini
-
+Include platform.ini
+Include hosts/current.ini
