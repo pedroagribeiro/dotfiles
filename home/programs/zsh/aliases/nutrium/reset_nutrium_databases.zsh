@@ -67,10 +67,10 @@ reset_nutrium_databases() {
 
   echo "Using backup: $backup_file"
 
-  reset_databases
-  reset_environment
-  import_data "$backup_file"
-  run_migrations
+  reset_databases || return 1
+  reset_environment || return 1
+  import_data "$backup_file" || return 1
+  run_migrations || return 1
 }
 
 reset_nutrium_databases_docker() {
@@ -80,8 +80,8 @@ reset_nutrium_databases_docker() {
 
   echo "Using backup: $backup_file"
 
-  reset_databases
-  reset_environment_docker
-  import_data "$backup_file"
-  run_migrations_docker
+  reset_databases || return 1
+  reset_environment_docker || return 1
+  import_data "$backup_file" || return 1
+  run_migrations_docker || return 1
 }
