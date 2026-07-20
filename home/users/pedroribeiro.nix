@@ -10,6 +10,9 @@ let
   disableFor = hosts: !lib.elem hostname hosts;
 in
 {
+  # System
+  dotfiles.programs.aerospace.enable = enableFor [ "MacBook-Pro-de-Healthium-6" ];
+
   # Shells
   dotfiles.programs.zsh.enable = true;
 
