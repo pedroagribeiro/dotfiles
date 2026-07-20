@@ -1,5 +1,6 @@
 AddKeysToAgent  yes
 Compression yes
+IdentityFile none
 
 Include platform.ini
 Include hosts/current.ini
