@@ -1,5 +1,9 @@
 {
   "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
@@ -9,7 +13,8 @@
     "skill-creator@claude-plugins-official": true,
     "ruby-lsp@claude-plugins-official": true,
     "nt@nutrium": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "nutrium": {

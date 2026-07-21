@@ -19,4 +19,5 @@
     if username == "pedroribeiro" then "settings.healthium.json" else "settings.json"
   );
   home.file.".claude/skills" = mkSymlink "skills";
+  home.file.".claude/statusline.sh" = mkSymlink "statusline.sh";
 }
