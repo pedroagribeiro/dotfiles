@@ -1,12 +1,14 @@
+require_relative "support/summary"
+
 questionaries_file      = File.join(Rails.root, 'data/templates/nutrium/questionaries.yml')
 questionaries_templates = YAML.load_file(questionaries_file)
 patient_info_types      = PatientInfoType.all
 
-puts "Size: #{questionaries_templates.size}"
+created = 0
+skipped = 0
 
 ActiveRecord::Base.transaction do
   questionaries_templates.map do |questionary|
-    puts '[Questionary]'
     questionary_exists =
       Questionary.where(
         template_source_id: questionary['template_source_id'],
@@ -14,8 +16,12 @@ ActiveRecord::Base.transaction do
         template_category_id: questionary['template_category_id']
       ).exists?
 
-    next if questionary_exists
+    if questionary_exists
+      skipped += 1
+      next
+    end
 
+    created += 1
     questionary_to_save = Questionary.create!(questionary.except('questionary_questions'))
 
     questionary['questionary_questions'].each do |questionary_question|
@@ -32,8 +38,13 @@ ActiveRecord::Base.transaction do
       end
 
       questionary_question_to_save.questionary = questionary_to_save
-      puts 'Saving questionary'
       questionary_question_to_save.save!
     end
   end
 end
+
+SeedSummary.print("Questionaries", {
+  "Templates" => questionaries_templates.size,
+  "Created"   => created,
+  "Skipped"   => skipped
+})
