@@ -48,6 +48,13 @@ assert_eq "$(count_occurrences "$otp" "module SeedSummary")" "1" "otp SeedSummar
 esc="$(_nut_emit_argv_prelude "O'Brien" 'a\b')"
 assert_eq "$esc" "ARGV.replace(['O\\'Brien', 'a\\\\b'])" "argv prelude escapes quotes and backslashes"
 
+print -r -- "== resolver =="
+assert_eq "$(nut_resolve_target "")"      "local|||"                          "empty target -> local"
+assert_eq "$(nut_resolve_target local)"   "local|||"                          "literal local -> local"
+assert_eq "$(nut_resolve_target my-sb)"   "remote|nutrium|/nutrium-my-sb|staging" "sandbox -> remote defaults"
+assert_eq "$(NUT_SSH_HOST=box NUT_RAILS_ENV=production nut_resolve_target x)" \
+          "remote|box|/nutrium-x|production" "env vars override host and rails env"
+
 print -r -- ""
 if (( _fails )); then print -r -- "FAILED: ${_fails}/${_tests}"; exit 1
 else print -r -- "PASSED: ${_tests}/${_tests}"; exit 0; fi

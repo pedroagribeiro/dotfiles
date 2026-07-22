@@ -57,3 +57,17 @@ nut_bundle_ruby() {
   _nut_inline_ruby "${_nut_ruby_dir}/${entry}"
   unset _NUT_INLINED
 }
+
+# --- Target resolution ----------------------------------------------------
+
+# Map a target name to an executor config, printed as
+#   <mode>|<ssh_host>|<remote_dir>|<rails_env>
+# Local (empty or "local") -> "local|||".
+nut_resolve_target() {
+  local target="$1"
+  if [[ -z "$target" || "$target" == "local" ]]; then
+    print -r -- "local|||"
+  else
+    print -r -- "remote|${NUT_SSH_HOST:-nutrium}|/nutrium-${target}|${NUT_RAILS_ENV:-staging}"
+  fi
+}
