@@ -44,6 +44,7 @@ otp="$(nut_bundle_ruby get_otp.rb foo@bar.com)"
 assert_not_contains "$otp" "require_relative" "otp bundle has no require_relative"
 assert_contains "$otp" "ARGV.replace(['foo@bar.com'])" "otp bundle has ARGV prelude"
 assert_eq "$(count_occurrences "$otp" "module SeedSummary")" "1" "otp SeedSummary inlined once"
+assert_contains "$prof" 'ENV["NUT_OUTPUT_MARKER"]' "bundle brackets output with the run marker"
 
 esc="$(_nut_emit_argv_prelude "O'Brien" 'a\b')"
 assert_eq "$esc" "ARGV.replace(['O\\'Brien', 'a\\\\b'])" "argv prelude escapes quotes and backslashes"
@@ -61,6 +62,8 @@ assert_contains "$lrun" "cd ${NUTRIUM_DIR}"       "local run cds into NUTRIUM_DI
 assert_contains "$lrun" "bin/rails runner /dev/stdin" "local run uses rails runner on stdin"
 assert_not_contains "$lrun" "ssh "                "local run does not ssh"
 assert_contains "$lrun" "ARGV.replace(['PT'])"    "local run streams the bundled program"
+assert_contains "$lrun" "NUT_OUTPUT_MARKER="      "local run sets the output marker"
+assert_contains "$lrun" "| awk"                   "local run filters output through awk"
 
 rrun="$(NUT_DRY_RUN=1 nut_run_ruby my-sb get_otp.rb x@y.com)"
 assert_contains "$rrun" "ssh "                    "remote run uses ssh"
@@ -68,6 +71,8 @@ assert_contains "$rrun" "/nutrium-my-sb"          "remote run targets the sandbo
 assert_contains "$rrun" "RAILS_ENV=staging"       "remote run sets RAILS_ENV"
 assert_contains "$rrun" "bin/rails runner /dev/stdin" "remote run uses rails runner on stdin"
 assert_contains "$rrun" "ARGV.replace(['x@y.com'])"  "remote run streams the bundled program"
+assert_contains "$rrun" "NUT_OUTPUT_MARKER="      "remote run sets the output marker"
+assert_contains "$rrun" "| awk"                   "remote run filters output through awk"
 
 print -r -- "== dispatchers (dry-run) =="
 # Local professional: known entity first token -> target is local; PT defaults applied.
@@ -107,7 +112,8 @@ assert_contains "$e_country" "missing country" "missing country reported"
 # Injection safety: entity args must NEVER appear on the ssh command line.
 payload=$'x\'; rm -rf / $(whoami) `id`'
 inj_out="$(nut_seed --dry-run my-sb professional PT me@x.com "$payload")"
-inj_cmdline="$(print -r -- "$inj_out" | grep '^ssh ')"
+# The command header is everything before the bundled-program section.
+inj_cmdline="${inj_out%%# --- bundled program ---*}"
 assert_not_contains "$inj_cmdline" "rm -rf" "injection payload stays off the ssh command line"
 assert_contains "$inj_out" "rm -rf" "injection payload rides inside the bundled program"
 
