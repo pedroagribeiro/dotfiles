@@ -51,18 +51,23 @@ _nut_inline_ruby() {
 # Build a self-contained Ruby program from an entry script (relative to
 # _nut_ruby_dir) plus its args, printed to stdout.
 #
-# The program's output is bracketed with a runtime marker (ENV NUT_OUTPUT_MARKER,
-# set by the runner). Framework boot logs (Datadog/Rails on staging) are written
-# to stdout *before* the program's first line runs, so they land outside the
-# markers and the runner's filter drops them — leaving only the summary.
+# When the caller sets `_nut_marker` (see nut_run_ruby), the program's output is
+# bracketed with that literal string. It is baked into the program as a literal
+# — NOT read from ENV — because the remote runs rails through Spring, which does
+# not forward per-invocation env vars into its pre-booted process. Framework boot
+# logs (Datadog/Rails on staging) are written to stdout *before* the program's
+# first line runs, so they land outside the markers and the runner's filter drops
+# them — leaving only the summary.
 nut_bundle_ruby() {
   local entry="$1"; shift
   typeset -gA _NUT_INLINED=()
   _nut_emit_argv_prelude "$@"
-  print -r -- '$stdout.sync = true'
-  print -r -- '$stdout.puts(ENV["NUT_OUTPUT_MARKER"]) if ENV["NUT_OUTPUT_MARKER"]'
+  if [[ -n "$_nut_marker" ]]; then
+    print -r -- "\$stdout.sync = true"
+    print -r -- "\$stdout.puts('${_nut_marker}')"
+  fi
   _nut_inline_ruby "${_nut_ruby_dir}/${entry}"
-  print -r -- '$stdout.puts(ENV["NUT_OUTPUT_MARKER"]) if ENV["NUT_OUTPUT_MARKER"]'
+  [[ -n "$_nut_marker" ]] && print -r -- "\$stdout.puts('${_nut_marker}')"
   unset _NUT_INLINED
 }
 
@@ -98,12 +103,14 @@ nut_run_ruby() {
   # Detect the TTY here: `execute` redirects stdout, so the Ruby summary can't.
   local color=0; [[ -t 1 ]] && color=1
 
-  # Unique per-run marker. The bundled program brackets its output with it; the
+  # Unique per-run marker, baked into the program as a literal (see
+  # nut_bundle_ruby — env vars don't survive the remote's Spring preloader). The
   # awk filter keeps only the lines between the two markers, stripping the
   # framework log noise the remote writes to stdout (e.g. Datadog/Rails on
   # staging). `setopt pipefail` makes a real rails failure still set the exit
   # code (otherwise awk's success would mask it).
   local marker="___NUT_OUTPUT_${RANDOM}${RANDOM}___"
+  local _nut_marker="$marker"   # dynamically scoped; read by nut_bundle_ruby
   local filter="awk -v m=${(q)marker} '\$0==m{f=!f;next} f'"
 
   local tmp; tmp="$(mktemp)"
@@ -111,9 +118,9 @@ nut_run_ruby() {
 
   local cmd
   if [[ "$mode" == "local" ]]; then
-    cmd="setopt pipefail; ( cd ${(q)NUTRIUM_DIR} && SEED_SUMMARY_COLOR=${color} NUT_OUTPUT_MARKER=${(q)marker} bin/rails runner /dev/stdin < ${(q)tmp} ) | ${filter}"
+    cmd="setopt pipefail; ( cd ${(q)NUTRIUM_DIR} && SEED_SUMMARY_COLOR=${color} bin/rails runner - < ${(q)tmp} ) | ${filter}"
   else
-    local remote="cd ${dir} && SEED_SUMMARY_COLOR=${color} RAILS_ENV=${renv} NUT_OUTPUT_MARKER=${marker} bin/rails runner /dev/stdin"
+    local remote="cd ${dir} && SEED_SUMMARY_COLOR=${color} RAILS_ENV=${renv} bin/rails runner -"
     cmd="setopt pipefail; ssh ${(q)host} ${(qq)remote} < ${(q)tmp} | ${filter}"
   fi
 
