@@ -55,6 +55,20 @@ assert_eq "$(nut_resolve_target my-sb)"   "remote|nutrium|/nutrium-my-sb|staging
 assert_eq "$(NUT_SSH_HOST=box NUT_RAILS_ENV=production nut_resolve_target x)" \
           "remote|box|/nutrium-x|production" "env vars override host and rails env"
 
+print -r -- "== runner (dry-run) =="
+lrun="$(NUT_DRY_RUN=1 nut_run_ruby "" create_professional.rb PT)"
+assert_contains "$lrun" "cd ${NUTRIUM_DIR}"       "local run cds into NUTRIUM_DIR"
+assert_contains "$lrun" "bin/rails runner /dev/stdin" "local run uses rails runner on stdin"
+assert_not_contains "$lrun" "ssh "                "local run does not ssh"
+assert_contains "$lrun" "ARGV.replace(['PT'])"    "local run streams the bundled program"
+
+rrun="$(NUT_DRY_RUN=1 nut_run_ruby my-sb get_otp.rb x@y.com)"
+assert_contains "$rrun" "ssh "                    "remote run uses ssh"
+assert_contains "$rrun" "/nutrium-my-sb"          "remote run targets the sandbox dir"
+assert_contains "$rrun" "RAILS_ENV=staging"       "remote run sets RAILS_ENV"
+assert_contains "$rrun" "bin/rails runner /dev/stdin" "remote run uses rails runner on stdin"
+assert_contains "$rrun" "ARGV.replace(['x@y.com'])"  "remote run streams the bundled program"
+
 print -r -- ""
 if (( _fails )); then print -r -- "FAILED: ${_fails}/${_tests}"; exit 1
 else print -r -- "PASSED: ${_tests}/${_tests}"; exit 0; fi

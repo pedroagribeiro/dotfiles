@@ -71,3 +71,48 @@ nut_resolve_target() {
     print -r -- "remote|${NUT_SSH_HOST:-nutrium}|/nutrium-${target}|${NUT_RAILS_ENV:-staging}"
   fi
 }
+
+# --- Runner ---------------------------------------------------------------
+
+# nut_run_ruby <target> <script.rb> [args...]
+# Bundle the script locally and run it against the resolved target. Honors
+# NUT_DRY_RUN: print the command + program instead of executing.
+nut_run_ruby() {
+  local target="$1" script="$2"; shift 2
+
+  local resolved mode host dir renv
+  resolved="$(nut_resolve_target "$target")"
+  mode="${resolved%%|*}"; resolved="${resolved#*|}"
+  host="${resolved%%|*}"; resolved="${resolved#*|}"
+  dir="${resolved%%|*}";  resolved="${resolved#*|}"
+  renv="${resolved}"
+
+  # Detect the TTY here: `execute` redirects stdout, so the Ruby summary can't.
+  local color=0; [[ -t 1 ]] && color=1
+
+  local tmp; tmp="$(mktemp)"
+  nut_bundle_ruby "$script" "$@" > "$tmp"
+
+  local cmd
+  if [[ "$mode" == "local" ]]; then
+    cmd="( cd ${(q)NUTRIUM_DIR} && SEED_SUMMARY_COLOR=${color} bin/rails runner /dev/stdin < ${(q)tmp} )"
+  else
+    local remote="cd ${dir} && SEED_SUMMARY_COLOR=${color} RAILS_ENV=${renv} bin/rails runner /dev/stdin"
+    cmd="ssh ${(q)host} ${(qq)remote} < ${(q)tmp}"
+  fi
+
+  if [[ -n "$NUT_DRY_RUN" ]]; then
+    print -r -- "# target: ${mode}${host:+ (${host}:${dir}, RAILS_ENV=${renv})}"
+    print -r -- "# command:"
+    print -r -- "$cmd"
+    print -r -- "# --- bundled program ---"
+    cat "$tmp"
+    rm -f "$tmp"
+    return 0
+  fi
+
+  execute -o "nut ${mode} run: ${script}" "$cmd"
+  local rc=$?
+  rm -f "$tmp"
+  return $rc
+}
