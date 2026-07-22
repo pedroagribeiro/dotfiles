@@ -26,6 +26,8 @@ nut() {
     create-us-professional) create_us_professional "$@" ;;
     create-pt-professional) create_pt_professional "$@" ;;
     get-otp)                get_otp "$@" ;;
+    seed)                   nut_seed "$@" ;;
+    get)                    nut_get "$@" ;;
     # DB / service commands assume the repo as CWD, so run them rooted there.
     reset-dbs)              ( cd "$NUTRIUM_DIR" && reset_nutrium_databases "$@" ) ;;
     reset-dbs-docker)       ( cd "$NUTRIUM_DIR" && reset_nutrium_databases_docker "$@" ) ;;
@@ -70,6 +72,13 @@ ${b}SEED DATA${r}
   ${c}create-pt-professional${r} ${d}<email> <name>${r}
       Create a fully bootstrapped PT professional (account, 2FA, seller, patient).
 
+${b}SANDBOX SEED / GET${r} ${d}(target-aware; omit <target> for local)${r}
+  ${c}seed${r} ${d}[<target>] professional <PT|US> [email] [name]${r}
+      Seed a professional locally or on a sandbox. e.g. \`nut seed my-sandbox professional PT\`.
+  ${c}get${r} ${d}[<target>] otp [email]${r}
+      Print the current 2FA/OTP for an account locally or on a sandbox.
+  ${d}Add --dry-run right after seed/get to print the command + program instead of running it.${r}
+
 ${b}UTILITIES${r}
   ${c}get-otp${r} ${d}<email>${r}
       Print the current (time-based) 2FA / OTP code for an account.
@@ -102,6 +111,8 @@ _nut() {
     'create-us-professional:Create a US professional'
     'create-pt-professional:Create a PT professional'
     'get-otp:Show the current 2FA/OTP code for an account'
+    'seed:Seed an entity locally or on a sandbox'
+    'get:Read a value locally or from a sandbox'
     'reset-dbs:Reset databases from the latest backup'
     'reset-dbs-docker:Reset databases (docker)'
     'start-services:Start postgres/redis/elasticsearch'

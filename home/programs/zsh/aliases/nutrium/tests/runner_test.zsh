@@ -69,6 +69,41 @@ assert_contains "$rrun" "RAILS_ENV=staging"       "remote run sets RAILS_ENV"
 assert_contains "$rrun" "bin/rails runner /dev/stdin" "remote run uses rails runner on stdin"
 assert_contains "$rrun" "ARGV.replace(['x@y.com'])"  "remote run streams the bundled program"
 
+print -r -- "== dispatchers (dry-run) =="
+# Local professional: known entity first token -> target is local; PT defaults applied.
+sp_local="$(nut_seed --dry-run professional PT)"
+assert_not_contains "$sp_local" "ssh " "seed professional PT runs local"
+assert_contains "$sp_local" "ARGV.replace(['PT', 'pt-pro@nutrium.com', 'Ana Silva'])" \
+  "seed professional PT applies PT defaults"
+
+# Remote professional: first token is the sandbox; US defaults applied.
+sp_remote="$(nut_seed --dry-run my-sb professional US)"
+assert_contains "$sp_remote" "/nutrium-my-sb" "seed <sandbox> professional targets sandbox"
+assert_contains "$sp_remote" "ARGV.replace(['US', 'us-pro@nutrium.com', 'John Smith'])" \
+  "seed professional US applies US defaults"
+
+# Explicit email/name override the defaults.
+sp_over="$(nut_seed --dry-run professional PT me@x.com 'Me Myself')"
+assert_contains "$sp_over" "ARGV.replace(['PT', 'me@x.com', 'Me Myself'])" \
+  "explicit email/name override defaults"
+
+# get otp: remote + explicit email.
+g_remote="$(nut_get --dry-run my-sb otp a@b.com)"
+assert_contains "$g_remote" "/nutrium-my-sb" "get <sandbox> otp targets sandbox"
+assert_contains "$g_remote" "ARGV.replace(['a@b.com'])" "get otp passes the email"
+
+# get otp: local default email when omitted.
+g_default="$(nut_get --dry-run otp)"
+assert_not_contains "$g_default" "ssh " "get otp with no target runs local"
+assert_contains "$g_default" "ARGV.replace(['pedroribeiro@nutrium.com'])" \
+  "get otp defaults the email"
+
+# Errors.
+e_entity="$(nut_seed nope-sb bogus 2>&1)"
+assert_contains "$e_entity" "unknown entity 'bogus'" "unknown entity reported"
+e_country="$(nut_seed professional 2>&1)"
+assert_contains "$e_country" "missing country" "missing country reported"
+
 print -r -- ""
 if (( _fails )); then print -r -- "FAILED: ${_fails}/${_tests}"; exit 1
 else print -r -- "PASSED: ${_tests}/${_tests}"; exit 0; fi

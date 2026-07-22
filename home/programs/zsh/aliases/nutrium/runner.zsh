@@ -116,3 +116,67 @@ nut_run_ruby() {
   rm -f "$tmp"
   return $rc
 }
+
+# --- Dispatchers ----------------------------------------------------------
+
+# nut seed [--dry-run] [<target>] <entity> [args...]
+nut_seed() {
+  [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
+
+  local known="professional"
+  local target entity
+  if [[ " $known " == *" ${1} "* ]]; then
+    target="local"; entity="$1"; [[ $# -gt 0 ]] && shift
+  else
+    target="$1"; [[ $# -gt 0 ]] && shift
+    entity="$1"; [[ $# -gt 0 ]] && shift
+  fi
+
+  case "$entity" in
+    professional) _nut_seed_professional "$target" "$@" ;;
+    "") echo "nut seed: missing entity. Known: ${known}"; return 1 ;;
+    *)  echo "nut seed: unknown entity '${entity}'. Known: ${known}"; return 1 ;;
+  esac
+}
+
+# <target> <COUNTRY> [email] [name] — apply per-country defaults then run.
+_nut_seed_professional() {
+  local target="$1"; shift
+  local country="${1:-}" email name
+  case "${country:u}" in
+    PT) email="pt-pro@nutrium.com"; name="Ana Silva" ;;
+    US) email="us-pro@nutrium.com"; name="John Smith" ;;
+    "") echo "nut seed professional: missing country. Known: PT, US"; return 1 ;;
+    *)  echo "nut seed professional: unknown country '${country}'. Known: PT, US"; return 1 ;;
+  esac
+  [[ -n "${2:-}" ]] && email="$2"
+  [[ -n "${3:-}" ]] && name="$3"
+  nut_run_ruby "$target" "create_professional.rb" "$country" "$email" "$name"
+}
+
+# nut get [--dry-run] [<target>] <thing> [args...]
+nut_get() {
+  [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
+
+  local known="otp"
+  local target thing
+  if [[ " $known " == *" ${1} "* ]]; then
+    target="local"; thing="$1"; [[ $# -gt 0 ]] && shift
+  else
+    target="$1"; [[ $# -gt 0 ]] && shift
+    thing="$1"; [[ $# -gt 0 ]] && shift
+  fi
+
+  case "$thing" in
+    otp) _nut_get_otp "$target" "$@" ;;
+    "") echo "nut get: missing thing. Known: ${known}"; return 1 ;;
+    *)  echo "nut get: unknown thing '${thing}'. Known: ${known}"; return 1 ;;
+  esac
+}
+
+# <target> [email] — default the email as the old get-otp did.
+_nut_get_otp() {
+  local target="$1"; shift
+  local email="${1:-pedroribeiro@nutrium.com}"
+  nut_run_ruby "$target" "get_otp.rb" "$email"
+}
