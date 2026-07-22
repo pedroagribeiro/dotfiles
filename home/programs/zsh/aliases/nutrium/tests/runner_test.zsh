@@ -104,6 +104,13 @@ assert_contains "$e_entity" "unknown entity 'bogus'" "unknown entity reported"
 e_country="$(nut_seed professional 2>&1)"
 assert_contains "$e_country" "missing country" "missing country reported"
 
+# Injection safety: entity args must NEVER appear on the ssh command line.
+payload=$'x\'; rm -rf / $(whoami) `id`'
+inj_out="$(nut_seed --dry-run my-sb professional PT me@x.com "$payload")"
+inj_cmdline="$(print -r -- "$inj_out" | grep '^ssh ')"
+assert_not_contains "$inj_cmdline" "rm -rf" "injection payload stays off the ssh command line"
+assert_contains "$inj_out" "rm -rf" "injection payload rides inside the bundled program"
+
 print -r -- ""
 if (( _fails )); then print -r -- "FAILED: ${_fails}/${_tests}"; exit 1
 else print -r -- "PASSED: ${_tests}/${_tests}"; exit 0; fi

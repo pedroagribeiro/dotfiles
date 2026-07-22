@@ -123,9 +123,9 @@ nut_run_ruby() {
 nut_seed() {
   [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
 
-  local known="professional"
+  local -a known=(professional)
   local target entity
-  if [[ " $known " == *" ${1} "* ]]; then
+  if (( ${known[(Ie)$1]} )); then
     target="local"; entity="$1"; [[ $# -gt 0 ]] && shift
   else
     target="$1"; [[ $# -gt 0 ]] && shift
@@ -134,8 +134,8 @@ nut_seed() {
 
   case "$entity" in
     professional) _nut_seed_professional "$target" "$@" ;;
-    "") echo "nut seed: missing entity. Known: ${known}"; return 1 ;;
-    *)  echo "nut seed: unknown entity '${entity}'. Known: ${known}"; return 1 ;;
+    "") echo "nut seed: missing entity. Known: ${(j:, :)known}"; return 1 ;;
+    *)  echo "nut seed: unknown entity '${entity}'. Known: ${(j:, :)known}"; return 1 ;;
   esac
 }
 
@@ -158,9 +158,9 @@ _nut_seed_professional() {
 nut_get() {
   [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
 
-  local known="otp"
+  local -a known=(otp)
   local target thing
-  if [[ " $known " == *" ${1} "* ]]; then
+  if (( ${known[(Ie)$1]} )); then
     target="local"; thing="$1"; [[ $# -gt 0 ]] && shift
   else
     target="$1"; [[ $# -gt 0 ]] && shift
@@ -169,8 +169,8 @@ nut_get() {
 
   case "$thing" in
     otp) _nut_get_otp "$target" "$@" ;;
-    "") echo "nut get: missing thing. Known: ${known}"; return 1 ;;
-    *)  echo "nut get: unknown thing '${thing}'. Known: ${known}"; return 1 ;;
+    "") echo "nut get: missing thing. Known: ${(j:, :)known}"; return 1 ;;
+    *)  echo "nut get: unknown thing '${thing}'. Known: ${(j:, :)known}"; return 1 ;;
   esac
 }
 
