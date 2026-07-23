@@ -19,14 +19,8 @@
     # HOMEBREW_*, MANPATH, and completions).
     enableZshIntegration = true;
 
-    # This Mac is managed by Workbrew, which forces every `brew` call through
-    # its wrapper at /opt/workbrew/bin/brew (HOMEBREW_FORCE_BREW_WRAPPER).
-    # Point nix-darwin at that prefix so it invokes the wrapper instead of the
-    # raw /opt/homebrew/bin/brew. NOTE: Workbrew also rejects brew run via sudo,
-    # and nix-darwin runs `brew bundle` inside the sudo activation — so this may
-    # still fail with "invoked by /usr/bin/sudo". If it does, disable this
-    # module and manage casks through a Workbrew Brewfile instead.
-    prefix = "/opt/workbrew";
+    # Standard Homebrew install on this machine (Apple Silicon default prefix).
+    prefix = "/opt/homebrew";
 
     onActivation = {
       autoUpdate = true;
