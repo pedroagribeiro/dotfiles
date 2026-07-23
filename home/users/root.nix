@@ -32,6 +32,7 @@
   dotfiles.programs.eza.enable = true;
   dotfiles.programs.fzf.enable = true;
   dotfiles.programs.git.enable = true;
+  dotfiles.programs.jq.enable = true;
   dotfiles.programs.mise.enable = true;
   dotfiles.programs.ssh.enable = true;
   dotfiles.programs.zoxide.enable = true;
