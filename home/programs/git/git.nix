@@ -41,6 +41,8 @@
     map (p: lib.nameValuePair "git/profiles/${p}.ini" (mkSymlink "profiles/${p}.ini")) [
       "personal"
       "nutrium"
+      "personal.server"
+      "nutrium.server"
     ]
   );
 }
