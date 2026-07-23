@@ -57,14 +57,23 @@ def resolve_host(cli_host=None):
   return $(hostname -s).strip()
 
 
-def known_hosts():
-  """Best-effort list of host labels defined in flake.nix, for a clear error."""
+def system_hosts():
+  """Host labels that ship a system config (nixos on Linux, darwin on macOS)."""
   attr = 'darwinConfigurations' if sys.platform == 'darwin' else 'nixosConfigurations'
   try:
     names = $(nix eval --raw @(f'.#{attr}') --apply 'cfgs: builtins.concatStringsSep " " (builtins.attrNames cfgs)')
-    return names.split()
+    return set(names.split())
   except Exception:
-    return []
+    return set()
+
+
+def home_hosts():
+  """Host labels that ship a home-manager config (homeConfigurations keyed `user@host`)."""
+  try:
+    names = $(nix eval --raw @('.#homeConfigurations') --apply 'cfgs: builtins.concatStringsSep " " (builtins.attrNames cfgs)')
+    return set(n.rsplit('@', 1)[-1] for n in names.split())
+  except Exception:
+    return set()
 
 
 def rebuild_system(host, action='switch'):
@@ -84,10 +93,12 @@ def main(args):
     action = 'boot' if args['--boot'] else 'switch'
 
     host = resolve_host(args['--host'])
-    valid = known_hosts()
+    sys_hosts = system_hosts()
+    home_hs = home_hosts()
+    valid = sys_hosts | home_hs
     if valid and host not in valid:
         print(f'✗ Resolved host "{host}" is not defined in flake.nix.', file=sys.stderr)
-        print(f'  Valid hosts: {", ".join(valid)}', file=sys.stderr)
+        print(f'  Valid hosts: {", ".join(sorted(valid))}', file=sys.stderr)
         print(f'  Fix: echo "<one-of-those>" > {os.getcwd()}/.host', file=sys.stderr)
         sys.exit(1)
     print(f'→ Building host: {host}')
@@ -96,12 +107,29 @@ def main(args):
         'os': rebuild_system,
         'home': rebuild_home,
     }
+    capable = {'os': sys_hosts, 'home': home_hs}
 
-    run_all = not any(args[task] for task in tasks)
+    # With an explicit task, run exactly that. Otherwise run every task this
+    # host actually provides (a home-only host like `manager` skips `os`). If
+    # the flake couldn't be introspected, fall back to running everything.
+    requested = [task for task in tasks if args[task]]
+    if requested:
+        selected = requested
+    elif valid:
+        selected = [task for task in tasks if host in capable[task]]
+    else:
+        selected = list(tasks)
 
-    for task, func in tasks.items():
-        if args[task] or run_all:
-            func(host, action)
+    # An explicit task the host can't provide should fail clearly, not deep in nh.
+    for task in selected:
+        if valid and host not in capable[task]:
+            kind = 'system' if task == 'os' else 'home-manager'
+            print(f'✗ Host "{host}" has no {kind} configuration to rebuild.', file=sys.stderr)
+            sys.exit(1)
+
+    for task in tasks:
+        if task in selected:
+            tasks[task](host, action)
 
 if __name__ == '__main__':
     arguments = docopt(__doc__.format(program=__file__), version=f'{os.path.basename(__file__)} script version 1.0')
