@@ -66,4 +66,8 @@ in
   dotfiles.programs.zoxide.enable = true;
 
   #dotfiles.packages.enable = true;
+
+  home.packages = with pkgs; [
+    libyaml
+  ];
 }
