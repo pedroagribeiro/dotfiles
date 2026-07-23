@@ -23,6 +23,19 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # ── Networking / identity ─────────────────────────────────────────────
+  # macOS lets DHCP rewrite the *transient* hostname (what the `hostname`
+  # command returns) on every network it joins — that's why office Wi-Fi
+  # keeps renaming this machine (Mac-335, Mac-410, …). We can't stop that,
+  # and we no longer depend on it: `bin/rebuild` selects this config by the
+  # logical label instead. Here we re-assert the *stable* names on every
+  # switch so `scutil --get LocalHostName` always snaps back to that label
+  # (its default detection source) and stops accumulating "(2)/(9)" suffixes.
+  networking.computerName = hostname;
+  networking.localHostName = hostname;
+  # `networking.hostName` (persistent HostName) is intentionally left unset —
+  # it's the one that tangles with the DHCP transient name we're avoiding.
+
   # ── Users ───────────────────────────────────────────────────────────────
   # Homebrew activation and user-scoped defaults run as the primary user.
   # macOS owns the account itself; we only point nix-darwin at it.

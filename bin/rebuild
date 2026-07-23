@@ -6,7 +6,7 @@
 Rebuilds the system and home configuration.
 
 Usage:
-  {program} [os | home] [--boot]
+  {program} [os | home] [--boot] [--host NAME]
   {program} (-h | --help)
   {program} (-v | --version)
 
@@ -20,6 +20,9 @@ Options:
   --boot            Activate the system on next boot instead of switching live.
                     Use for major release upgrades to avoid hanging on service
                     restarts (e.g. GDM, NetworkManager). Ignored for home.
+  --host NAME       Logical host label to build (a key under `hosts` in
+                    flake.nix). Overrides auto-detection — useful on networks
+                    that keep rewriting the macOS hostname.
 """
 import os
 import sys
@@ -31,20 +34,63 @@ os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Enable flake features for the `nh`/`nix` calls below.
 $NIX_CONFIG = 'experimental-features = nix-command flakes'
 
-def rebuild_system(action='switch'):
+
+def resolve_host(cli_host=None):
+  """Pick the logical host label, independent of the volatile OS hostname.
+
+  First match wins:
+    1. --host flag        2. $DOTFILES_HOST        3. ./.host file
+    4. platform default (macOS: LocalHostName, which DHCP doesn't touch)
+  """
+  if cli_host:
+    return cli_host
+  env_host = os.environ.get('DOTFILES_HOST', '').strip()
+  if env_host:
+    return env_host
+  if os.path.exists('.host'):
+    with open('.host') as f:
+      marker = f.read().strip()
+    if marker:
+      return marker
   if sys.platform == 'darwin':
-    nh darwin switch .
+    return $(scutil --get LocalHostName).strip()
+  return $(hostname -s).strip()
+
+
+def known_hosts():
+  """Best-effort list of host labels defined in flake.nix, for a clear error."""
+  attr = 'darwinConfigurations' if sys.platform == 'darwin' else 'nixosConfigurations'
+  try:
+    names = $(nix eval --raw @(f'.#{attr}') --apply 'cfgs: builtins.concatStringsSep " " (builtins.attrNames cfgs)')
+    return names.split()
+  except Exception:
+    return []
+
+
+def rebuild_system(host, action='switch'):
+  if sys.platform == 'darwin':
+    nh darwin switch . -H @(host)
   else:
     #nixos-rebuild switch --use-remote-sudo --flake '.'
-    nh os @(action) .
+    nh os @(action) . -H @(host)
 
-def rebuild_home(action='switch'):
+def rebuild_home(host, action='switch'):
   # home-manager switch --flake '.'
   # home-manager switch --flake .#nelson@framework
-  nh home switch .
+  user = os.environ.get('USER', '')
+  nh home switch . -c @(f'{user}@{host}')
 
 def main(args):
     action = 'boot' if args['--boot'] else 'switch'
+
+    host = resolve_host(args['--host'])
+    valid = known_hosts()
+    if valid and host not in valid:
+        print(f'✗ Resolved host "{host}" is not defined in flake.nix.', file=sys.stderr)
+        print(f'  Valid hosts: {", ".join(valid)}', file=sys.stderr)
+        print(f'  Fix: echo "<one-of-those>" > {os.getcwd()}/.host', file=sys.stderr)
+        sys.exit(1)
+    print(f'→ Building host: {host}')
 
     tasks = {
         'os': rebuild_system,
@@ -55,7 +101,7 @@ def main(args):
 
     for task, func in tasks.items():
         if args[task] or run_all:
-            func(action)
+            func(host, action)
 
 if __name__ == '__main__':
     arguments = docopt(__doc__.format(program=__file__), version=f'{os.path.basename(__file__)} script version 1.0')

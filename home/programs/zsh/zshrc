@@ -33,7 +33,19 @@ for function_file in $(ls $DOTFILES/home/programs/zsh/functions/*.zsh | sort); d
   source $function_file
 done
 
-host_file="$DOTFILES/home/programs/zsh/hosts/$(hostname -s).zsh"
+# Resolve a stable host label to pick the per-host config. Mirrors the resolver
+# in bin/rebuild: some networks (e.g. office DHCP) keep rewriting the transient
+# hostname, so prefer explicit/stable sources over `hostname -s`.
+if [[ -n "$DOTFILES_HOST" ]]; then
+  host_name="$DOTFILES_HOST"
+elif [[ -f "$DOTFILES/.host" ]]; then
+  host_name="$(<"$DOTFILES/.host")"
+elif [[ "$OSTYPE" == darwin* ]]; then
+  host_name="$(scutil --get LocalHostName)"
+else
+  host_name="$(hostname -s)"
+fi
+host_file="$DOTFILES/home/programs/zsh/hosts/${host_name}.zsh"
 [[ -f "$host_file" ]] && source "$host_file"
 
 # go to working directory if it has one

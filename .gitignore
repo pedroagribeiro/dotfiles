@@ -1,0 +1,2 @@
+# Per-machine host label read by bin/rebuild (see resolve_host). Local only.
+.host
