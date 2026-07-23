@@ -70,6 +70,11 @@
           darwin = true;
           users = [ "pedroribeiro" ];
         };
+
+        manager = {
+          system = "x86_64-linux";
+          users = [ "root" ];
+        };
       };
 
       # ── Users (home-manager) ─────────────────────────────────────────────
@@ -131,6 +136,20 @@
         "pedroribeiro" = {
           name = "Pedro Ribeiro";
           overlays = [
+            (final: prev: {
+              unstable = import nixpkgs-unstable {
+                system = prev.stdenv.hostPlatform.system;
+                config.allowUnfree = true;
+              };
+            })
+          ];
+          extraSpecialArgs = { };
+        };
+
+        root = {
+          name = "Pedro Ribeiro";
+          overlays = [
+            claude-code.overlays.default
             (final: prev: {
               unstable = import nixpkgs-unstable {
                 system = prev.stdenv.hostPlatform.system;
