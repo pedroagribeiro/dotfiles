@@ -1,5 +1,4 @@
 {
-  "apiKeyHelper": "~/.claude/anthropic_key.sh",
   "theme": "dark",
   "attribution": {
     "commit": "",
