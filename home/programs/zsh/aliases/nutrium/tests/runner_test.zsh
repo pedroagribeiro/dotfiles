@@ -49,6 +49,12 @@ prof_m="$(_nut_marker=___TESTMARK___ nut_bundle_ruby create_professional.rb PT)"
 assert_contains "$prof_m" "\$stdout.puts('___TESTMARK___')" "bundle bakes the literal marker when set"
 assert_eq "$(count_occurrences "$prof_m" "___TESTMARK___")" "2" "marker brackets output (start + end)"
 
+destroy="$(nut_bundle_ruby destroy_professional.rb foo@bar.com)"
+assert_not_contains "$destroy" "require_relative" "destroy bundle has no require_relative"
+assert_contains "$destroy" "ARGV.replace(['foo@bar.com'])" "destroy bundle has ARGV prelude"
+assert_contains "$destroy" "anonymize_attributes_and_relationships" "destroy bundle anonymizes the professional"
+assert_eq "$(count_occurrences "$destroy" "module SeedSummary")" "1" "destroy SeedSummary inlined once"
+
 esc="$(_nut_emit_argv_prelude "O'Brien" 'a\b')"
 assert_eq "$esc" "ARGV.replace(['O\\'Brien', 'a\\\\b'])" "argv prelude escapes quotes and backslashes"
 
@@ -77,23 +83,37 @@ assert_contains "$rrun" "ARGV.replace(['x@y.com'])"  "remote run streams the bun
 assert_contains "$rrun" "stdout.puts('___NUT_OUTPUT" "remote run bakes the literal marker into the program"
 assert_contains "$rrun" "| awk"                   "remote run filters output through awk"
 
+print -r -- "== flag parser =="
+_nut_parse_flags --country PT --email a@b.com --name "Ana Silva"
+assert_eq "${_nut_flags[country]}" "PT"          "parses --key value"
+assert_eq "${_nut_flags[email]}"   "a@b.com"     "parses another --key value"
+assert_eq "${_nut_flags[name]}"    "Ana Silva"   "parses a value with spaces"
+_nut_parse_flags --country=US --email=x@y.com
+assert_eq "${_nut_flags[country]}" "US"          "parses --key=value"
+assert_eq "${_nut_flags[email]}"   "x@y.com"     "parses another --key=value"
+stray="$(_nut_parse_flags positional 2>&1)"
+assert_contains "$stray" "unexpected argument 'positional'" "rejects stray non-flag arg"
+
 print -r -- "== dispatchers (dry-run) =="
-# Local professional: known entity first token -> target is local; PT defaults applied.
-sp_local="$(nut_seed --dry-run professional PT)"
-assert_not_contains "$sp_local" "ssh " "seed professional PT runs local"
-assert_contains "$sp_local" "ARGV.replace(['PT', 'pt-pro@nutrium.com', 'Ana Silva'])" \
-  "seed professional PT applies PT defaults"
+# Local professional: known entity first -> target local; flags required.
+sp_local="$(nut_seed --dry-run professional --country PT --email ana@x.com --name 'Ana Silva')"
+assert_not_contains "$sp_local" "ssh " "seed professional runs local"
+assert_contains "$sp_local" "ARGV.replace(['PT', 'ana@x.com', 'Ana Silva'])" \
+  "seed professional passes flag values"
 
-# Remote professional: first token is the sandbox; US defaults applied.
-sp_remote="$(nut_seed --dry-run my-sb professional US)"
+# Remote professional: first token is the sandbox; country is upcased.
+sp_remote="$(nut_seed --dry-run my-sb professional --country us --email j@x.com --name 'John Smith')"
 assert_contains "$sp_remote" "/nutrium-my-sb" "seed <sandbox> professional targets sandbox"
-assert_contains "$sp_remote" "ARGV.replace(['US', 'us-pro@nutrium.com', 'John Smith'])" \
-  "seed professional US applies US defaults"
+assert_contains "$sp_remote" "ARGV.replace(['US', 'j@x.com', 'John Smith'])" \
+  "seed professional upcases --country"
 
-# Explicit email/name override the defaults.
-sp_over="$(nut_seed --dry-run professional PT me@x.com 'Me Myself')"
-assert_contains "$sp_over" "ARGV.replace(['PT', 'me@x.com', 'Me Myself'])" \
-  "explicit email/name override defaults"
+# Required-flag validation.
+e_email="$(nut_seed professional --country PT --name x 2>&1)"
+assert_contains "$e_email" "--email is required" "seed professional requires --email"
+e_name="$(nut_seed professional --country PT --email a@b.com 2>&1)"
+assert_contains "$e_name" "--name is required" "seed professional requires --name"
+e_ctry="$(nut_seed professional --email a@b.com --name x 2>&1)"
+assert_contains "$e_ctry" "--country is required" "seed professional requires --country"
 
 # get otp: remote + explicit email.
 g_remote="$(nut_get --dry-run my-sb otp a@b.com)"
@@ -109,12 +129,22 @@ assert_contains "$g_default" "ARGV.replace(['pedroribeiro@nutrium.com'])" \
 # Errors.
 e_entity="$(nut_seed nope-sb bogus 2>&1)"
 assert_contains "$e_entity" "unknown entity 'bogus'" "unknown entity reported"
-e_country="$(nut_seed professional 2>&1)"
-assert_contains "$e_country" "missing country" "missing country reported"
+
+# destroy: dispatch, required flag, and dry-run command shape.
+d_remote="$(nut_destroy --dry-run 12000 professional --email a@b.com)"
+assert_contains "$d_remote" "/nutrium-12000"                "destroy targets the sandbox dir"
+assert_contains "$d_remote" "anonymize_attributes_and_relationships" "destroy runs the anonymize script"
+assert_contains "$d_remote" "ARGV.replace(['a@b.com'])"     "destroy passes the email"
+d_local="$(nut_destroy --dry-run professional --email a@b.com)"
+assert_not_contains "$d_local" "ssh " "destroy professional runs local when no target"
+d_noemail="$(nut_destroy 12000 professional 2>&1)"
+assert_contains "$d_noemail" "--email is required" "destroy professional requires --email"
+d_unknown="$(nut_destroy 12000 bogus 2>&1)"
+assert_contains "$d_unknown" "unknown entity 'bogus'" "destroy reports unknown entity"
 
 # Injection safety: entity args must NEVER appear on the ssh command line.
 payload=$'x\'; rm -rf / $(whoami) `id`'
-inj_out="$(nut_seed --dry-run my-sb professional PT me@x.com "$payload")"
+inj_out="$(nut_seed --dry-run my-sb professional --country PT --email me@x.com --name "$payload")"
 # The command header is everything before the bundled-program section.
 inj_cmdline="${inj_out%%# --- bundled program ---*}"
 assert_not_contains "$inj_cmdline" "rm -rf" "injection payload stays off the ssh command line"

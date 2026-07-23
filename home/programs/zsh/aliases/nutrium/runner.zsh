@@ -71,6 +71,25 @@ nut_bundle_ruby() {
   unset _NUT_INLINED
 }
 
+# --- Flag parsing ---------------------------------------------------------
+
+# Parse `--key value` and `--key=value` pairs into the global assoc array
+# _nut_flags (reset on each call). Returns 1 on a stray non-flag argument.
+# Entity handlers read the flags they care about and validate required ones.
+_nut_parse_flags() {
+  typeset -gA _nut_flags=()
+  while (( $# )); do
+    case "$1" in
+      --*=*) local pair="${1#--}"; _nut_flags[${pair%%=*}]="${pair#*=}"; shift ;;
+      --*)   local key="${1#--}"
+             if (( $# >= 2 )); then _nut_flags[$key]="$2"; shift 2
+             else _nut_flags[$key]=""; shift; fi ;;
+      *) echo "nut: unexpected argument '$1' (use --flag value)"; return 1 ;;
+    esac
+  done
+  return 0
+}
+
 # --- Target resolution ----------------------------------------------------
 
 # Map a target name to an executor config, printed as
@@ -162,19 +181,19 @@ nut_seed() {
   esac
 }
 
-# <target> <COUNTRY> [email] [name] — apply per-country defaults then run.
+# <target> --country <PT|US> --email <e> --name <n> — all flags required.
 _nut_seed_professional() {
   local target="$1"; shift
-  local country="${1:-}" email name
+  _nut_parse_flags "$@" || return 1
+  local country="${_nut_flags[country]:-}" email="${_nut_flags[email]:-}" name="${_nut_flags[name]:-}"
+  [[ -z "$country" ]] && { echo "nut seed professional: --country is required (PT|US)"; return 1; }
+  [[ -z "$email" ]]   && { echo "nut seed professional: --email is required"; return 1; }
+  [[ -z "$name" ]]    && { echo "nut seed professional: --name is required"; return 1; }
   case "${country:u}" in
-    PT) email="pt-pro@nutrium.com"; name="Ana Silva" ;;
-    US) email="us-pro@nutrium.com"; name="John Smith" ;;
-    "") echo "nut seed professional: missing country. Known: PT, US"; return 1 ;;
-    *)  echo "nut seed professional: unknown country '${country}'. Known: PT, US"; return 1 ;;
+    PT|US) ;;
+    *) echo "nut seed professional: unknown --country '${country}'. Known: PT, US"; return 1 ;;
   esac
-  [[ -n "${2:-}" ]] && email="$2"
-  [[ -n "${3:-}" ]] && name="$3"
-  nut_run_ruby "$target" "create_professional.rb" "$country" "$email" "$name"
+  nut_run_ruby "$target" "create_professional.rb" "${country:u}" "$email" "$name"
 }
 
 # nut get [--dry-run] [<target>] <thing> [args...]
@@ -202,4 +221,33 @@ _nut_get_otp() {
   local target="$1"; shift
   local email="${1:-pedroribeiro@nutrium.com}"
   nut_run_ruby "$target" "get_otp.rb" "$email"
+}
+
+# nut destroy [--dry-run] [<target>] <entity> [flags...]
+nut_destroy() {
+  [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
+
+  local -a known=(professional)
+  local target entity
+  if (( ${known[(Ie)$1]} )); then
+    target="local"; entity="$1"; [[ $# -gt 0 ]] && shift
+  else
+    target="$1"; [[ $# -gt 0 ]] && shift
+    entity="$1"; [[ $# -gt 0 ]] && shift
+  fi
+
+  case "$entity" in
+    professional) _nut_destroy_professional "$target" "$@" ;;
+    "") echo "nut destroy: missing entity. Known: ${(j:, :)known}"; return 1 ;;
+    *)  echo "nut destroy: unknown entity '${entity}'. Known: ${(j:, :)known}"; return 1 ;;
+  esac
+}
+
+# <target> --email <e> — email required. Hard-deletes the seed footprint.
+_nut_destroy_professional() {
+  local target="$1"; shift
+  _nut_parse_flags "$@" || return 1
+  local email="${_nut_flags[email]:-}"
+  [[ -z "$email" ]] && { echo "nut destroy professional: --email is required"; return 1; }
+  nut_run_ruby "$target" "destroy_professional.rb" "$email"
 }

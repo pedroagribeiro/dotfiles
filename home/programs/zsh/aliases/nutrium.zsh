@@ -28,6 +28,7 @@ nut() {
     get-otp)                get_otp "$@" ;;
     seed)                   nut_seed "$@" ;;
     get)                    nut_get "$@" ;;
+    destroy)                nut_destroy "$@" ;;
     # DB / service commands assume the repo as CWD, so run them rooted there.
     reset-dbs)              ( cd "$NUTRIUM_DIR" && reset_nutrium_databases "$@" ) ;;
     reset-dbs-docker)       ( cd "$NUTRIUM_DIR" && reset_nutrium_databases_docker "$@" ) ;;
@@ -72,12 +73,16 @@ ${b}SEED DATA${r}
   ${c}create-pt-professional${r} ${d}<email> <name>${r}
       Create a fully bootstrapped PT professional (account, 2FA, seller, patient).
 
-${b}SANDBOX SEED / GET${r} ${d}(target-aware; omit <target> for local)${r}
-  ${c}seed${r} ${d}[<target>] professional <PT|US> [email] [name]${r}
-      Seed a professional locally or on a sandbox. e.g. \`nut seed my-sandbox professional PT\`.
+${b}SANDBOX SEED / GET / DESTROY${r} ${d}(target-aware; omit <target> for local)${r}
+  ${c}seed${r} ${d}[<target>] professional --country <PT|US> --email <e> --name <n>${r}
+      Seed a professional locally or on a sandbox. e.g.
+      \`nut seed my-sandbox professional --country PT --email ana@x.com --name "Ana Silva"\`.
   ${c}get${r} ${d}[<target>] otp [email]${r}
       Print the current 2FA/OTP for an account locally or on a sandbox.
-  ${d}Add --dry-run right after seed/get to print the command + program instead of running it.${r}
+  ${c}destroy${r} ${d}[<target>] professional --email <e>${r}
+      Remove a professional (anonymizes like the app does; frees the email to
+      re-seed). e.g. \`nut destroy my-sandbox professional --email ana@x.com\`.
+  ${d}Add --dry-run right after seed/get/destroy to print the command + program instead of running it.${r}
 
 ${b}UTILITIES${r}
   ${c}get-otp${r} ${d}<email>${r}
@@ -113,6 +118,7 @@ _nut() {
     'get-otp:Show the current 2FA/OTP code for an account'
     'seed:Seed an entity locally or on a sandbox'
     'get:Read a value locally or from a sandbox'
+    'destroy:Hard-delete an entity locally or on a sandbox'
     'reset-dbs:Reset databases from the latest backup'
     'reset-dbs-docker:Reset databases (docker)'
     'start-services:Start postgres/redis/elasticsearch'
