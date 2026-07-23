@@ -16,8 +16,6 @@
   programs.bash = {
     enable = true;
     profileExtra = ''
-      # Load runtime secrets kept out of the repo (e.g. CLAUDE_CODE_OAUTH_TOKEN).
-      [ -r /root/.config/claude/env ] && . /root/.config/claude/env
       [[ $- == *i* && -z "$ZSH_VERSION" && -x "$HOME/.nix-profile/bin/zsh" ]] && exec "$HOME/.nix-profile/bin/zsh" -l
     '';
   };
