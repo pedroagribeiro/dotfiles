@@ -11,6 +11,15 @@
   # Shells
   dotfiles.programs.zsh.enable = true;
 
+  # No NixOS layer here to set the login shell, so drop from bash's login
+  # profile into zsh (interactive shells only; leaves scp/ssh-command alone).
+  programs.bash = {
+    enable = true;
+    profileExtra = ''
+      [[ $- == *i* && -z "$ZSH_VERSION" && -x "$HOME/.nix-profile/bin/zsh" ]] && exec "$HOME/.nix-profile/bin/zsh" -l
+    '';
+  };
+
   # Editors & IDEs
   dotfiles.programs.nvim.enable = true;
 
