@@ -38,6 +38,7 @@
     # GUI apps / casks.
     casks = [
       "1password-cli"
+      "bruno"
       "ghostty"
       "openlogi"
       "raycast"
