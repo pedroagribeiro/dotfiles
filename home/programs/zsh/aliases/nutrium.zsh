@@ -118,7 +118,7 @@ _nut() {
     'get-otp:Show the current 2FA/OTP code for an account'
     'seed:Seed an entity locally or on a sandbox'
     'get:Read a value locally or from a sandbox'
-    'destroy:Hard-delete an entity locally or on a sandbox'
+    'destroy:Remove (anonymize) an entity locally or on a sandbox'
     'reset-dbs:Reset databases from the latest backup'
     'reset-dbs-docker:Reset databases (docker)'
     'start-services:Start postgres/redis/elasticsearch'
