@@ -62,6 +62,7 @@ in
   dotfiles.programs.speedtest.enable = false;
   dotfiles.programs.unzip.enable = false;
   dotfiles.programs.wget.enable = false;
+  dotfiles.programs.zed.enable = true;
   dotfiles.programs.zoxide.enable = true;
 
   #dotfiles.packages.enable = true;
