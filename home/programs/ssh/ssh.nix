@@ -7,9 +7,14 @@
   ...
 }:
 {
-  home.packages = with pkgs; [
-    openssh
-  ];
+  # On the headless manager box use the system (Ubuntu) ssh: nix's openssh is
+  # built without GSSAPI and warns on Ubuntu's system ssh_config.
+  home.packages = lib.optionals (hostname != "manager") (
+    with pkgs;
+    [
+      openssh
+    ]
+  );
 
   home.file = {
     ".ssh/config" = mkSymlink "config";
