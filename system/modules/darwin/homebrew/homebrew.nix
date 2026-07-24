@@ -33,6 +33,13 @@
     # CLI formulae. Prefer nixpkgs via home.packages; list here only what nix
     # lacks or what must come from Homebrew.
     brews = [
+      "gmp"
+      "libyaml"
+      "openssl@3"
+      "libmagic"
+      "libffi"
+      "readline"
+      "zlib"
     ];
 
     # GUI apps / casks.
