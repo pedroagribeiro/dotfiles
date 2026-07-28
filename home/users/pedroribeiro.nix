@@ -47,7 +47,6 @@ in
   dotfiles.programs.fzf.enable = true;
   dotfiles.programs.git.enable = true;
   dotfiles.programs.glab.enable = false;
-  dotfiles.programs.herdr.enable = false;
   dotfiles.programs.httpie.enable = false;
   dotfiles.programs.hyperfine.enable = false;
   dotfiles.programs.jj.enable = false;
@@ -68,6 +67,8 @@ in
   #dotfiles.packages.enable = true;
 
   home.packages = with pkgs; [
+    herdr
+    imagemagick
     libyaml
   ];
 }

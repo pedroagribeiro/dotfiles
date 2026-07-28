@@ -136,6 +136,7 @@
         "pedroribeiro" = {
           name = "Pedro Ribeiro";
           overlays = [
+            herdr.overlays.default
             (final: prev: {
               unstable = import nixpkgs-unstable {
                 system = prev.stdenv.hostPlatform.system;
