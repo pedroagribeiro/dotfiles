@@ -28,7 +28,7 @@
       cleanup = "uninstall";
     };
 
-    taps = [ ];
+    taps = [ "agavra/tap" ];
 
     # CLI formulae. Prefer nixpkgs via home.packages; list here only what nix
     # lacks or what must come from Homebrew.
@@ -40,6 +40,8 @@
       "libffi"
       "readline"
       "zlib"
+
+      "agavra/tap/tuicr"
     ];
 
     # GUI apps / casks.
