@@ -10,6 +10,12 @@ alias -g N="| nvim +'setlocal buftype=nofile noswapfile' +':0' -"
 
 alias dot="cd $DOTFILES"
 
+# herdr sessions
+alias h="herdr"                                                  # launch/attach the default session
+alias hw='(cd ~/Code/healthium/nutrium && herdr --session work)' # work session, in its folder
+alias hp="herdr --session personal"                              # personal session
+alias hl="herdr session list"                                    # list running sessions
+
 alias ls="eza"
 alias tree="eza -T"
 alias r="yazi"
