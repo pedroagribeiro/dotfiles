@@ -113,7 +113,14 @@ def build_update(name, old_line, new_line):
 def update_inputs():
     # gum spin draws the spinner on the TTY while gum's captured stdout
     # carries the wrapped command's combined output (stderr→stdout via bash).
-    output = $(gum spin --spinner=dot --title='Updating flake inputs...' --show-output -- bash -c 'nix flake update 2>&1')
+    # !(...) rather than $(...) so a non-zero exit doesn't raise before we
+    # can show nix's actual message.
+    result = !(gum spin --spinner=dot --title='Updating flake inputs...' --show-output -- bash -c 'nix flake update 2>&1')
+    output = result.out
+    if result.returncode != 0:
+        print(f'{RED}✗ nix flake update failed (exit {result.returncode}):{RESET}', file=sys.stderr)
+        print(output.rstrip(), file=sys.stderr)
+        sys.exit(result.returncode)
     updates = []
     lines = output.splitlines()
     i = 0
