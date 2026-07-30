@@ -12,14 +12,26 @@
   ];
 
   # ── Nix ─────────────────────────────────────────────────────────────────
-  # This machine runs Determinate Nix, which uses its own daemon to manage the
-  # Nix installation and conflicts with nix-darwin's native management. Turning
-  # nix-darwin's management off is required to coexist with Determinate.
-  #
-  # Consequence: nix-darwin's `nix.*` options (nix.settings, nix.gc, Linux
-  # builder, …) become unavailable — Determinate owns them. Flakes and
-  # nix-command are enabled by Determinate out of the box, and it handles GC.
-  nix.enable = false;
+  # nix-darwin manages the Nix installation and daemon on this machine, so it
+  # owns /etc/nix/nix.conf. Enable flakes and nix-command here (vanilla Nix
+  # ships with them off) — this is what lets `bin/update` and the flake-based
+  # rebuild work.
+  nix.enable = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Determinate used to handle store upkeep for us; under plain nix-darwin we
+  # schedule it ourselves. Collect garbage weekly (keeping 30 days of roots)
+  # and hard-link identical store paths to reclaim space.
+  nix.gc = {
+    automatic = true;
+    interval = {
+      Weekday = 0;
+      Hour = 3;
+      Minute = 0;
+    };
+    options = "--delete-older-than 30d";
+  };
+  nix.optimise.automatic = true;
 
   nixpkgs.config.allowUnfree = true;
 
