@@ -17,6 +17,9 @@
 
   dotfiles.directory = "${config.home.homeDirectory}/.dotfiles";
 
+  # User-scoped executables installed outside Nix (e.g. `uv tool install`).
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
