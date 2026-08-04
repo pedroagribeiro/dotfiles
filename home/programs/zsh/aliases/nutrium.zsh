@@ -77,8 +77,20 @@ ${b}SANDBOX SEED / GET / DESTROY${r} ${d}(target-aware; omit <target> for local)
   ${c}seed${r} ${d}[<target>] professional --country <PT|US> --email <e> --name <n>${r}
       Seed a professional locally or on a sandbox. e.g.
       \`nut seed my-sandbox professional --country PT --email ana@x.com --name "Ana Silva"\`.
+  ${c}seed${r} ${d}[<target>] secretary --email <e> --name <n> [--professional <name>] [--workplace-scoped] [--requests N]${r}
+      Seed a login-ready secretary attached to an existing professional, plus a
+      few pending appointment requests so its calendar has something to show.
+      \`--workplace-scoped\` binds it to one workplace (and drops one request on
+      another workplace to exercise the scoping filter); default is all
+      workplaces. \`--professional\` defaults to the backup's professional. e.g.
+      \`nut seed secretary --email brad@x.com --name "Brad Peters" --workplace-scoped\`.
   ${c}get${r} ${d}[<target>] otp [email]${r}
       Print the current 2FA/OTP for an account locally or on a sandbox.
+  ${c}get${r} ${d}[<target>] secretaries${r}
+      Read-only. List secretaries whose professional can exercise the
+      appointment-requests feature (scheduling active + visible pending
+      requests), with each one's workplace scope and workplace count. e.g.
+      \`nut get my-sandbox secretaries\`.
   ${c}destroy${r} ${d}[<target>] professional --email <e>${r}
       Remove a professional (anonymizes like the app does; frees the email to
       re-seed). e.g. \`nut destroy my-sandbox professional --email ana@x.com\`.

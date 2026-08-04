@@ -165,7 +165,7 @@ nut_run_ruby() {
 nut_seed() {
   [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
 
-  local -a known=(professional)
+  local -a known=(professional secretary)
   local target entity
   if (( ${known[(Ie)$1]} )); then
     target="local"; entity="$1"; [[ $# -gt 0 ]] && shift
@@ -176,6 +176,7 @@ nut_seed() {
 
   case "$entity" in
     professional) _nut_seed_professional "$target" "$@" ;;
+    secretary)    _nut_seed_secretary "$target" "$@" ;;
     "") echo "nut seed: missing entity. Known: ${(j:, :)known}"; return 1 ;;
     *)  echo "nut seed: unknown entity '${entity}'. Known: ${(j:, :)known}"; return 1 ;;
   esac
@@ -196,11 +197,30 @@ _nut_seed_professional() {
   nut_run_ruby "$target" "create_professional.rb" "${country:u}" "$email" "$name"
 }
 
+# <target> --email <e> --name <n> [--professional <name>] [--workplace-scoped] [--requests N].
+# --workplace-scoped is a bare boolean, so pull it out before the (value-only)
+# flag parser sees it and swallows the following argument.
+_nut_seed_secretary() {
+  local target="$1"; shift
+  local scoped=false
+  local -a rest=()
+  local a
+  for a in "$@"; do
+    if [[ "$a" == "--workplace-scoped" ]]; then scoped=true; else rest+=("$a"); fi
+  done
+  _nut_parse_flags "${rest[@]}" || return 1
+  local email="${_nut_flags[email]:-}" name="${_nut_flags[name]:-}"
+  local professional="${_nut_flags[professional]:-}" requests="${_nut_flags[requests]:-3}"
+  [[ -z "$email" ]] && { echo "nut seed secretary: --email is required"; return 1; }
+  [[ -z "$name" ]]  && { echo "nut seed secretary: --name is required"; return 1; }
+  nut_run_ruby "$target" "create_secretary.rb" "$email" "$name" "$professional" "$scoped" "$requests"
+}
+
 # nut get [--dry-run] [<target>] <thing> [args...]
 nut_get() {
   [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
 
-  local -a known=(otp)
+  local -a known=(otp secretaries)
   local target thing
   if (( ${known[(Ie)$1]} )); then
     target="local"; thing="$1"; [[ $# -gt 0 ]] && shift
@@ -210,7 +230,8 @@ nut_get() {
   fi
 
   case "$thing" in
-    otp) _nut_get_otp "$target" "$@" ;;
+    otp)         _nut_get_otp "$target" "$@" ;;
+    secretaries) _nut_get_secretaries "$target" "$@" ;;
     "") echo "nut get: missing thing. Known: ${(j:, :)known}"; return 1 ;;
     *)  echo "nut get: unknown thing '${thing}'. Known: ${(j:, :)known}"; return 1 ;;
   esac
@@ -221,6 +242,13 @@ _nut_get_otp() {
   local target="$1"; shift
   local email="${1:-pedroribeiro@nutrium.com}"
   nut_run_ruby "$target" "get_otp.rb" "$email"
+}
+
+# <target> — read-only. Lists secretaries whose professional can exercise the
+# appointment-requests feature (scheduling active + visible pending requests).
+_nut_get_secretaries() {
+  local target="$1"; shift
+  nut_run_ruby "$target" "get_secretaries.rb"
 }
 
 # nut destroy [--dry-run] [<target>] <entity> [flags...]
