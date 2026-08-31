@@ -76,27 +76,36 @@ local plugins = {
         },
       })
 
-      local mode, err = get_os_theme_mode()
-      if mode then
-        vim.cmd.colorscheme(mode == "dark" and "github_dark" or "github_light")
-      else
-        vim.notify("Error detecting theme: " .. err, vim.log.levels.WARN)
-        vim.cmd.colorscheme("github_dark")
+      -- omamac owns the colorscheme. vim-lumen still tells us WHEN the system
+      -- appearance flips; it must no longer decide WHAT to apply, or it would
+      -- overwrite omamac's colours on every light<->dark theme switch.
+      local omamac_state = os.getenv("HOME") .. "/.local/state/omamac/current/omamac.lua"
+
+      local function load_omamac()
+        if vim.uv.fs_stat(omamac_state) then pcall(dofile, omamac_state) end
       end
 
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "LumenLight",
-        callback = function()
-          vim.cmd.colorscheme("github_light")
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "LumenDark",
-        callback = function()
+      -- Startup: prefer omamac's generated colorscheme when it already exists
+      -- (any machine that has run `omamac theme` at least once); fall back to
+      -- the github theme only when it doesn't (a fresh machine, or before the
+      -- first run). init.lua dofiles the same state file again right after
+      -- `require`ing this module, which is a harmless no-op reapplication
+      -- when omamac already won here — the point is there is no window where
+      -- github wins at startup while omamac wins after the first flip.
+      if vim.uv.fs_stat(omamac_state) then
+        load_omamac()
+      else
+        local mode, err = get_os_theme_mode()
+        if mode then
+          vim.cmd.colorscheme(mode == "dark" and "github_dark" or "github_light")
+        else
+          vim.notify("Error detecting theme: " .. err, vim.log.levels.WARN)
           vim.cmd.colorscheme("github_dark")
-        end,
-      })
+        end
+      end
+
+      vim.api.nvim_create_autocmd("User", { pattern = "LumenLight", callback = load_omamac })
+      vim.api.nvim_create_autocmd("User", { pattern = "LumenDark",  callback = load_omamac })
     end,
   },
   {
