@@ -20,6 +20,8 @@
 
   xdg.configFile."ghostty/themes/Day" = mkSymlink "themes/Day";
   xdg.configFile."ghostty/themes/Night" = mkSymlink "themes/Night";
+  xdg.configFile."ghostty/themes/vscode-dark-2026" = mkSymlink "themes/vscode-dark-2026";
+  xdg.configFile."ghostty/themes/vscode-light-2026" = mkSymlink "themes/vscode-light-2026";
 
   dconf.settings = lib.mkIf config.dotfiles.programs.gnome.enable {
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {

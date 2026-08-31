@@ -1,5 +1,5 @@
-theme = dark:"Night",light:"Day"
-font-family = "JetBrains Mono Nerd Font"
+theme = dark:vscode-dark-2026,light:vscode-light-2026
+font-family = "Menlo Nerd Font"
 font-size = 16
 
 shell-integration = zsh
@@ -25,7 +25,7 @@ adw-toolbar-style = flat
 cursor-style = block
 cursor-color = #ffffff
 
-background-opacity = 0.9
+# background-opacity = 0.9
 background-blur = true
 background-blur-radius = 20
 
