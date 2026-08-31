@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/pedroribeiro/.claude/hooks/herdr-agent-state.sh' session",
+            "command": "[ -f \"$HOME/.claude/hooks/herdr-agent-state.sh\" ] && exec bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session || exit 0",
             "timeout": 10
           }
         ]
