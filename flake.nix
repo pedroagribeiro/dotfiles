@@ -37,6 +37,15 @@
     zed = {
       url = "github:zed-industries/zed/v1.4.4";
     };
+
+    # LOCAL PATH — omamac has not been published anywhere yet. This will not
+    # resolve on another machine; once the repo is pushed, replace this with
+    # a real URL (e.g. github:pedroribeiro/omamac) and re-run
+    # `nix flake lock --update-input omamac`.
+    omamac = {
+      url = "git+file:///Users/pedroribeiro/personal/omamac";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs =
     {
@@ -50,6 +59,7 @@
       herdr,
       vicinae,
       zed,
+      omamac,
     }:
     let
       lib = nixpkgs.lib;
@@ -143,6 +153,7 @@
                 config.allowUnfree = true;
               };
             })
+            (final: prev: { omamac = omamac.packages.${prev.stdenv.hostPlatform.system}.default; })
           ];
           extraSpecialArgs = { };
         };

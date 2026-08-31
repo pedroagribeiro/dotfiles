@@ -30,3 +30,4 @@ background-blur = true
 background-blur-radius = 20
 
 config-file = ?keybindings
+config-file = ?omamac.conf
