@@ -1,0 +1,6 @@
+{
+  "name": "local-nt",
+  "version": "0.1.0",
+  "description": "Pedro's personal/local Nutrium skills — testing ground before promoting to the shared nt plugin.",
+  "skills": "./skills/"
+}

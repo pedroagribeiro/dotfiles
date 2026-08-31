@@ -3,3 +3,10 @@
 
 # Local design docs (superpowers specs/plans). Kept out of the repo.
 docs/
+
+# Third-party Claude skill, installed via `npx impeccable`. Works through the
+# out-of-store symlink without being tracked.
+home/programs/claude/skills/impeccable/
+
+# Manual backups of Claude settings.
+home/programs/claude/settings.*.json.bak

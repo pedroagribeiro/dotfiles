@@ -1,0 +1,11 @@
+{
+  "name": "pedro-local",
+  "owner": { "name": "Pedro Ribeiro" },
+  "plugins": [
+    {
+      "name": "local-nt",
+      "source": "./local-nt",
+      "description": "Pedro's personal/local Nutrium skills — testing ground before promoting to the shared nt plugin."
+    }
+  ]
+}
