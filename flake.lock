@@ -237,11 +237,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788216498,
-        "narHash": "sha256-n2Hmja6haYfvBoAgdd/saVH7CuDpohUCLRnjMbpiNVw=",
+        "lastModified": 1788250436,
+        "narHash": "sha256-wKcdR1lpTuj9f8B6xAedmozrv7T2PfjAIhq5736CAGk=",
         "ref": "refs/heads/main",
-        "rev": "7a7c33b3db8463510f68bbe3d051e4be68711728",
-        "revCount": 36,
+        "rev": "ceba90512d4aaab441fd970f486e0cabc7ee592f",
+        "revCount": 37,
         "type": "git",
         "url": "file:///Users/pedroribeiro/personal/omamac"
       },
