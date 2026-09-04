@@ -16,6 +16,16 @@
     pkgs.omamac
   ];
 
+  # AeroSpace's config is rendered from the template the aerospace module
+  # links, so an edit to that template takes effect on rebuild rather than
+  # only when a gap is next chosen from the menu. `|| true`: a machine without
+  # the template (aerospace module disabled) must not fail activation.
+  home.activation.omamacAerospace = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      ${pkgs.omamac}/bin/omamac aerospace --render >/dev/null 2>&1 || true
+    ''
+  );
+
   # Generated, not symlinked: OMAMAC_DIR/OMAMAC_BIN must be written in
   # literally, because a GUI app launched via LaunchServices (Hammerspoon.app)
   # inherits no shell environment — `home.sessionVariables` would be invisible

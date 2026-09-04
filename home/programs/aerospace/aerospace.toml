@@ -8,13 +8,17 @@ start-at-login = false
 # Mouse follows focus when focused monitor changes
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
+# The values marked `# omamac:gaps` are rewritten by omamac when you pick a gap
+# size from its menu; everything else here is untouched. They carry real
+# defaults rather than placeholders, so this file remains a complete, valid
+# AeroSpace config even if omamac never runs.
 [gaps]
-  inner.horizontal = 10
-  inner.vertical =   10
-  outer.left =       10
-  outer.bottom =     10
-  outer.top =        10
-  outer.right =      10
+  inner.horizontal = 10  # omamac:gaps
+  inner.vertical =   10  # omamac:gaps
+  outer.left =       10  # omamac:gaps
+  outer.bottom =     10  # omamac:gaps
+  outer.top =        10  # omamac:gaps
+  outer.right =      10  # omamac:gaps
 
 [mode.main.binding]
   # cmd-enter = 'exec-and-forget wezterm start'
@@ -98,19 +102,21 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
   enter = 'mode main' # as a confirmation
   esc   = 'mode main' # as an escape
 
-# Assign workspaces to particular monitors
-# use `aerospace list-monitors` to get monitors list
+# Assign workspaces to particular monitors.
+# Use `aerospace list-monitors` for the monitor list. The lines marked below
+# are rewritten by omamac when you pick a monitor from its menu; they hold real
+# assignments rather than placeholders, so this stays a valid config on its own.
 [workspace-to-monitor-force-assignment]
-1 = 'main'
-2 = 'main'
-3 = 'main'
-4 = 'secondary'
-5 = 'main'
-6 = 'main'
-7 = 'main'
-8 = 'main'
-9 = 'main'
-10 = 'secondary'
+1 = 'main'       # omamac:workspace
+2 = 'main'       # omamac:workspace
+3 = 'main'       # omamac:workspace
+4 = 'secondary'  # omamac:workspace
+5 = 'main'       # omamac:workspace
+6 = 'main'       # omamac:workspace
+7 = 'main'       # omamac:workspace
+8 = 'main'       # omamac:workspace
+9 = 'main'       # omamac:workspace
+10 = 'secondary'  # omamac:workspace
 
 # Assign apps to particular workspaces
 [[on-window-detected]]

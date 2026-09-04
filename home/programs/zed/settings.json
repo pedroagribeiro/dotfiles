@@ -26,7 +26,12 @@
       "type": "registry"
     }
   },
-  "buffer_font_family": "JetBrainsMono Nerd Font",
+  // Static, deliberately. omamac drives Zed's COLOURS via
+  // ~/.config/zed/themes/omamac.json, but not its font: Zed has no include
+  // mechanism, so the only place to write one is this file — which is
+  // git-tracked, and generated values do not belong in git. Kept in step
+  // with the terminal by hand.
+  "buffer_font_family": "JetBrainsMono Nerd Font Mono",
   "vim_mode": true,
   "project_panel": {
     "default_width": 240,
@@ -61,9 +66,9 @@
            "preferred_line_length": 120,
            "format_on_save": "on" },
   },
-  "theme": {
-    "mode": "system",
-    "light": "VS Code Light 2026",
-    "dark": "VS Code Dark 2026",
-  },
+  // omamac generates ~/.config/zed/themes/omamac.json from the active theme
+  // and Zed hot-reloads it. Its appearance already follows the theme, so
+  // there is no light/dark pair to switch between. The VS Code themes stay
+  // installed and selectable by hand.
+  "theme": "omamac",
 }

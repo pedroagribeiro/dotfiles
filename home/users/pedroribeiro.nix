@@ -53,6 +53,7 @@ in
   dotfiles.programs.jq.enable = false;
   dotfiles.programs.mise.enable = true;
   dotfiles.programs.onefetch.enable = false;
+  dotfiles.programs.omamac.enable = true;
   dotfiles.programs.postgresql.enable = true;
   dotfiles.programs.ripgrep.enable = true;
   dotfiles.programs.shellcheck.enable = false;

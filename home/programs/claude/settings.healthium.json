@@ -1,5 +1,6 @@
 {
   "model": "opus[1m]",
+  "theme": "custom:omamac",
   "hooks": {
     "SessionStart": [
       {
