@@ -24,6 +24,7 @@
     else
       "settings.json"
   );
+  home.file.".claude/CLAUDE.md" = mkSymlink "CLAUDE.md";
   home.file.".claude/skills" = mkSymlink "skills";
   home.file.".claude/statusline.sh" = mkSymlink "statusline.sh";
 }
