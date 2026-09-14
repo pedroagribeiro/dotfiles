@@ -230,26 +230,6 @@
         "type": "github"
       }
     },
-    "omamac": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788527301,
-        "narHash": "sha256-m3+A8AYqbQzcL7QCnZhwN4PVUuz2eCVTgWXR5s1uMro=",
-        "ref": "refs/heads/main",
-        "rev": "1e3cc766e5d7148afeb874bee9d9133dc4483d74",
-        "revCount": 84,
-        "type": "git",
-        "url": "file:///Users/pedroribeiro/personal/omamac"
-      },
-      "original": {
-        "type": "git",
-        "url": "file:///Users/pedroribeiro/personal/omamac"
-      }
-    },
     "root": {
       "inputs": {
         "claude-code": "claude-code",
@@ -258,7 +238,6 @@
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "omamac": "omamac",
         "vicinae": "vicinae",
         "zed": "zed",
         "zen-browser": "zen-browser"

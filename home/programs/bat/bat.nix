@@ -13,6 +13,6 @@
   xdg.configFile."bat/config" = mkSymlink "config";
 
   programs.zsh.envExtra = lib.mkIf config.dotfiles.programs.zsh.enable ''
-    alias cat='bat -p --theme=omamac'
+    alias cat='bat -p'
   '';
 }
