@@ -27,6 +27,12 @@ vim.opt.expandtab = true
 vim.opt.list = true
 vim.opt.listchars = { tab = '>~', trail = '•',  nbsp = '•'}
 
+-- The end-of-buffer `~` is normally hidden by colouring it the same as the
+-- background, which stops working the moment that background is transparent:
+-- the tildes would render as dark glyphs over the desktop. Drop the character
+-- instead, so the trick doesn't depend on a background being painted at all.
+vim.opt.fillchars = { eob = " " }
+
 -- ## Spelling
 
 -- This will make the default spell language to English.

@@ -62,50 +62,31 @@ end
 
 local plugins = {
   {
-    "projekt0n/github-nvim-theme",
-    dependencies = { "vimpostor/vim-lumen" },
+    -- vim-lumen is here only as the signal that the system appearance flipped.
+    -- WHAT gets applied is always vscode2026, so nvim matches the Ghostty theme
+    -- (dark:vscode-dark-2026,light:vscode-light-2026) and the Zed theme.
+    "vimpostor/vim-lumen",
     lazy = false,
     priority = 1000,
     config = function()
-      require("github-theme").setup({
-        options = {
-          transparent = true,
-          styles = {
-            comments = "italic",
-          },
-        },
+      local vscode2026 = require("vscode2026")
+
+      -- vim-lumen only fires on a *change*, so startup has to probe the current
+      -- appearance itself.
+      local mode, err = get_os_theme_mode()
+      if not mode then
+        vim.notify("Error detecting theme: " .. err, vim.log.levels.WARN)
+      end
+      vscode2026.load(mode or "dark")
+
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "LumenLight",
+        callback = function() vscode2026.load("light") end,
       })
-
-      -- omamac owns the colorscheme. vim-lumen still tells us WHEN the system
-      -- appearance flips; it must no longer decide WHAT to apply, or it would
-      -- overwrite omamac's colours on every light<->dark theme switch.
-      local omamac_state = os.getenv("HOME") .. "/.local/state/omamac/current/omamac.lua"
-
-      local function load_omamac()
-        if vim.uv.fs_stat(omamac_state) then pcall(dofile, omamac_state) end
-      end
-
-      -- Startup: prefer omamac's generated colorscheme when it already exists
-      -- (any machine that has run `omamac theme` at least once); fall back to
-      -- the github theme only when it doesn't (a fresh machine, or before the
-      -- first run). init.lua dofiles the same state file again right after
-      -- `require`ing this module, which is a harmless no-op reapplication
-      -- when omamac already won here — the point is there is no window where
-      -- github wins at startup while omamac wins after the first flip.
-      if vim.uv.fs_stat(omamac_state) then
-        load_omamac()
-      else
-        local mode, err = get_os_theme_mode()
-        if mode then
-          vim.cmd.colorscheme(mode == "dark" and "github_dark" or "github_light")
-        else
-          vim.notify("Error detecting theme: " .. err, vim.log.levels.WARN)
-          vim.cmd.colorscheme("github_dark")
-        end
-      end
-
-      vim.api.nvim_create_autocmd("User", { pattern = "LumenLight", callback = load_omamac })
-      vim.api.nvim_create_autocmd("User", { pattern = "LumenDark",  callback = load_omamac })
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "LumenDark",
+        callback = function() vscode2026.load("dark") end,
+      })
     end,
   },
   {
