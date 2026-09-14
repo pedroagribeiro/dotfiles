@@ -1,5 +1,6 @@
-theme = dark:vscode-dark-2026,light:vscode-light-2026
-font-family = "Menlo Nerd Font"
+# theme = dark:vscode-dark-2026,light:vscode-light-2026
+theme = vscode-dark-2026
+font-family = "JetBrainsMono Nerd Font"
 font-size = 16
 
 shell-integration = zsh
@@ -12,7 +13,7 @@ window-padding-y = 12
 window-padding-balance = true
 
 macos-icon = xray
-macos-titlebar-style = hidden
+# macos-titlebar-style = hidden
 macos-titlebar-proxy-icon = hidden
 macos-non-native-fullscreen = true
 
@@ -25,9 +26,8 @@ adw-toolbar-style = flat
 cursor-style = block
 cursor-color = #ffffff
 
-# background-opacity = 0.9
+background-opacity = 0.9
 background-blur = true
 background-blur-radius = 20
 
 config-file = ?keybindings
-config-file = ?omamac.conf
