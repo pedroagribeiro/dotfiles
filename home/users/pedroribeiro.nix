@@ -14,6 +14,7 @@ in
   dotfiles.programs.aerospace.enable = enableFor [ "MacBook-Pro-de-Healthium-6" ];
 
   # Shells
+  dotfiles.programs.starship.enable = true;
   dotfiles.programs.zsh.enable = true;
 
   # Terminals

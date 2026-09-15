@@ -1,0 +1,41 @@
+# Starship prompt — stock starship, recoloured for VS Code Dark 2026.
+#
+# Deliberately almost empty: every module keeps its default format, symbol and
+# enabled/disabled state, so this tracks upstream instead of freezing a snapshot
+# of it. `ZSH_PROMPT=p10k` in zshrc switches back to powerlevel10k.
+#
+# The colours are the only change, and they are a one-line-per-slot remap rather
+# than a per-module override. Starship palettes shadow the built-in colour names,
+# so redefining "blue" here reaches every module that defaults to it — no need to
+# restate a style for each one.
+#
+# Why remap at all: starship's defaults name the *normal* ANSI slots, and against
+# the 2026 background (#191a1b) four of those fall under WCAG AA (4.5:1):
+#
+#   slot     normal          bright
+#   blue     #2472c8  3.58   #3b8eea  5.18
+#   red      #cd3131  3.39   #f14c4c  4.88
+#   purple   #bc3fbc  3.80   #d670d6  5.93
+#   black    #000000  1.20   #666666  3.04
+#   green    #0dbc79  7.04   #23d18b  8.77
+#   cyan     #11a8cd  6.23   #29b8db  7.45
+#   yellow   #e5e510 12.90   #f5f543 14.96
+#
+# The values stay ANSI slot *names*, not hexes, so the prompt follows whichever
+# Ghostty theme is live — flip to vscode-light-2026 and it recolours with it.
+# Pin a slot to a hex ("#3b8eea") to opt out of that.
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+palette = "vscode_2026"
+
+[palettes.vscode_2026]
+blue = "bright-blue"
+green = "bright-green"
+red = "bright-red"
+yellow = "bright-yellow"
+purple = "bright-purple"
+cyan = "bright-cyan"
+# `black` is only ever used dimmed (fill, env_var), where pure #000000 is
+# invisible on this background.
+black = "bright-black"
