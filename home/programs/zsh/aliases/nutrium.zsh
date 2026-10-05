@@ -28,6 +28,7 @@ nut() {
     get-otp)                get_otp "$@" ;;
     seed)                   nut_seed "$@" ;;
     get)                    nut_get "$@" ;;
+    update)                 nut_update "$@" ;;
     destroy)                nut_destroy "$@" ;;
     # DB / service commands assume the repo as CWD, so run them rooted there.
     reset-dbs)              ( cd "$NUTRIUM_DIR" && reset_nutrium_databases "$@" ) ;;
@@ -84,6 +85,19 @@ ${b}SANDBOX SEED / GET / DESTROY${r} ${d}(target-aware; omit <target> for local)
       another workplace to exercise the scoping filter); default is all
       workplaces. \`--professional\` defaults to the backup's professional. e.g.
       \`nut seed secretary --email brad@x.com --name "Brad Peters" --workplace-scoped\`.
+  ${c}seed${r} ${d}[<target>] insured-company [--name <n>] [--code <c>] [--domain <d>]${r}
+      Create a company whose patients get the insurance reimbursement funnel, or
+      switch an existing one on when \`--code\` matches it. Defaults to
+      "Insurance Test Co" / \`insurance_test_co\`, US residence, New York time. e.g.
+      \`nut seed insured-company --name "Acme Health" --code acme_health\`.
+  ${c}seed${r} ${d}[<target>] insured-patient --email <e> [--name <n>] [--company <code>] [--state <XX>] [--professional <name>]${r}
+      Seed a login-ready US patient inside an insured company (the first insured
+      company found, unless \`--company\` says otherwise). Leave \`--state\` off to
+      start at the first setup step; pass it (e.g. \`--state CA\`) to skip ahead to
+      the insurance profile. Re-running the same email reuses the patient and
+      applies whatever \`--company\`/\`--state\` you passed, so you can walk it
+      forward. Prints what the reimbursement flow still owes. e.g.
+      \`nut seed insured-patient --email mia@x.com --name "Mia Reed" --state CA\`.
   ${c}get${r} ${d}[<target>] otp [email]${r}
       Print the current 2FA/OTP for an account locally or on a sandbox.
   ${c}get${r} ${d}[<target>] secretaries${r}
@@ -91,6 +105,12 @@ ${b}SANDBOX SEED / GET / DESTROY${r} ${d}(target-aware; omit <target> for local)
       appointment-requests feature (scheduling active + visible pending
       requests), with each one's workplace scope and workplace count. e.g.
       \`nut get my-sandbox secretaries\`.
+  ${c}update${r} ${d}[<target>] patient --email <e> [--state XX] [--zip Z] [--address A] [--birthdate YYYY-MM-DD] [--company <code>] [--name N]${r}
+      Move an existing patient's own fields, to walk it through the reimbursement
+      setup one step at a time. Only the fields you pass are touched. Pass
+      \`none\` to \`--state\`, \`--zip\` or \`--address\` to clear that field and replay
+      the step. Prints what the flow still owes. e.g.
+      \`nut update patient --email mia@x.com --state CA --zip 90210\`.
   ${c}destroy${r} ${d}[<target>] professional --email <e>${r}
       Remove a professional (anonymizes like the app does; frees the email to
       re-seed). e.g. \`nut destroy my-sandbox professional --email ana@x.com\`.
@@ -130,6 +150,7 @@ _nut() {
     'get-otp:Show the current 2FA/OTP code for an account'
     'seed:Seed an entity locally or on a sandbox'
     'get:Read a value locally or from a sandbox'
+    'update:Update an existing entity locally or on a sandbox'
     'destroy:Remove (anonymize) an entity locally or on a sandbox'
     'reset-dbs:Reset databases from the latest backup'
     'reset-dbs-docker:Reset databases (docker)'

@@ -165,7 +165,7 @@ nut_run_ruby() {
 nut_seed() {
   [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
 
-  local -a known=(professional secretary)
+  local -a known=(professional secretary insured-company insured-patient)
   local target entity
   if (( ${known[(Ie)$1]} )); then
     target="local"; entity="$1"; [[ $# -gt 0 ]] && shift
@@ -175,8 +175,10 @@ nut_seed() {
   fi
 
   case "$entity" in
-    professional) _nut_seed_professional "$target" "$@" ;;
-    secretary)    _nut_seed_secretary "$target" "$@" ;;
+    professional)     _nut_seed_professional "$target" "$@" ;;
+    secretary)        _nut_seed_secretary "$target" "$@" ;;
+    insured-company)  _nut_seed_insured_company "$target" "$@" ;;
+    insured-patient)  _nut_seed_insured_patient "$target" "$@" ;;
     "") echo "nut seed: missing entity. Known: ${(j:, :)known}"; return 1 ;;
     *)  echo "nut seed: unknown entity '${entity}'. Known: ${(j:, :)known}"; return 1 ;;
   esac
@@ -216,6 +218,29 @@ _nut_seed_secretary() {
   nut_run_ruby "$target" "create_secretary.rb" "$email" "$name" "$professional" "$scoped" "$requests"
 }
 
+# <target> [--name <n>] [--code <c>] [--domain <d>] — all optional. Converts an
+# existing company when --code matches one, so it doubles as "make this company
+# insured".
+_nut_seed_insured_company() {
+  local target="$1"; shift
+  _nut_parse_flags "$@" || return 1
+  local name="${_nut_flags[name]:-}" code="${_nut_flags[code]:-}" domain="${_nut_flags[domain]:-}"
+  nut_run_ruby "$target" "create_insured_company.rb" "$name" "$code" "$domain"
+}
+
+# <target> --email <e> [--name <n>] [--company <code>] [--state <XX>] [--professional <name>].
+# Leave --state off to start the patient at the first setup step; pass it to skip
+# straight to the insurance-profile step.
+_nut_seed_insured_patient() {
+  local target="$1"; shift
+  _nut_parse_flags "$@" || return 1
+  local email="${_nut_flags[email]:-}" name="${_nut_flags[name]:-}"
+  local company="${_nut_flags[company]:-}" state="${_nut_flags[state]:-}"
+  local professional="${_nut_flags[professional]:-}"
+  [[ -z "$email" ]] && { echo "nut seed insured-patient: --email is required"; return 1; }
+  nut_run_ruby "$target" "create_insured_patient.rb" "$email" "$name" "$company" "$state" "$professional"
+}
+
 # nut get [--dry-run] [<target>] <thing> [args...]
 nut_get() {
   [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
@@ -249,6 +274,40 @@ _nut_get_otp() {
 _nut_get_secretaries() {
   local target="$1"; shift
   nut_run_ruby "$target" "get_secretaries.rb"
+}
+
+# nut update [--dry-run] [<target>] <entity> [flags...]
+nut_update() {
+  [[ "$1" == "--dry-run" ]] && { local NUT_DRY_RUN=1; shift; }
+
+  local -a known=(patient)
+  local target entity
+  if (( ${known[(Ie)$1]} )); then
+    target="local"; entity="$1"; [[ $# -gt 0 ]] && shift
+  else
+    target="$1"; [[ $# -gt 0 ]] && shift
+    entity="$1"; [[ $# -gt 0 ]] && shift
+  fi
+
+  case "$entity" in
+    patient) _nut_update_patient "$target" "$@" ;;
+    "") echo "nut update: missing entity. Known: ${(j:, :)known}"; return 1 ;;
+    *)  echo "nut update: unknown entity '${entity}'. Known: ${(j:, :)known}"; return 1 ;;
+  esac
+}
+
+# <target> --email <e> [--state XX] [--zip Z] [--address A] [--birthdate YYYY-MM-DD]
+#          [--company <code>] [--name N]
+# Only the fields passed are touched. `--state none`, `--zip none` and `--address none` clear the
+# field instead of setting it, so a setup step can be replayed from the start.
+_nut_update_patient() {
+  local target="$1"; shift
+  _nut_parse_flags "$@" || return 1
+  local email="${_nut_flags[email]:-}" state="${_nut_flags[state]:-}" zip="${_nut_flags[zip]:-}"
+  local address="${_nut_flags[address]:-}" birthdate="${_nut_flags[birthdate]:-}"
+  local company="${_nut_flags[company]:-}" name="${_nut_flags[name]:-}"
+  [[ -z "$email" ]] && { echo "nut update patient: --email is required"; return 1; }
+  nut_run_ruby "$target" "update_patient.rb" "$email" "$state" "$zip" "$address" "$birthdate" "$company" "$name"
 }
 
 # nut destroy [--dry-run] [<target>] <entity> [flags...]
