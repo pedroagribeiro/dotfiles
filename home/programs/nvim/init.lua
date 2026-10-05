@@ -14,5 +14,4 @@ require("keymaps")
 require("commands")
 require("plugins")
 
--- The colorscheme is pinned to VS Code 2026 in plugins.lua, tracking the
--- Zed/Ghostty 2026 theme.
+-- The colorscheme is pinned to Atom One Dark (onedark.nvim) in plugins.lua.

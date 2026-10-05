@@ -24,69 +24,24 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
--- Utilities
-
--- Function to get the current OS theme mode ("dark" or "light")
-local function get_os_theme_mode()
-  local is_mac = vim.fn.has("mac") == 1
-
-  -- On macOS, `defaults read -g AppleInterfaceStyle` prints "Dark" in dark
-  -- mode and errors (empty output) in light mode. On GNOME, gsettings reports
-  -- the color-scheme preference directly.
-  local command = is_mac
-    and "defaults read -g AppleInterfaceStyle 2>/dev/null"
-    or "gsettings get org.gnome.desktop.interface color-scheme"
-
-  local ok, result = pcall(vim.fn.system, command)
-  if not ok then
-    return nil, "Failed to execute command to get OS theme."
-  end
-
-  result = string.lower(result:gsub("%s+", ""))
-
-  if is_mac then
-    -- Empty output (light mode) or the absence of "dark" means light.
-    return result == "dark" and "dark" or "light"
-  end
-
-  if result == "'prefer-dark'" then
-    return "dark"
-  elseif result == "'default'" then
-    return "light"
-  else
-    return nil, "Unexpected theme value from GNOME settings."
-  end
-end
-
 -- Configure Plugins
 
 local plugins = {
   {
-    -- vim-lumen is here only as the signal that the system appearance flipped.
-    -- WHAT gets applied is always vscode2026, so nvim matches the Ghostty theme
-    -- (dark:vscode-dark-2026,light:vscode-light-2026) and the Zed theme.
-    "vimpostor/vim-lumen",
+    -- Atom One Dark. Loaded first (priority) so lualine's `theme = "auto"`
+    -- picks up its colours, and transparent so Ghostty's `background-opacity`
+    -- still shows through. vscode2026.lua is kept for switching back: replace
+    -- this entry with `require("vscode2026").load("dark")` above the table.
+    "navarasu/onedark.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      local vscode2026 = require("vscode2026")
-
-      -- vim-lumen only fires on a *change*, so startup has to probe the current
-      -- appearance itself.
-      local mode, err = get_os_theme_mode()
-      if not mode then
-        vim.notify("Error detecting theme: " .. err, vim.log.levels.WARN)
-      end
-      vscode2026.load(mode or "dark")
-
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "LumenLight",
-        callback = function() vscode2026.load("light") end,
+      require("onedark").setup({
+        style = "dark",
+        transparent = true,
+        lualine = { transparent = true },
       })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "LumenDark",
-        callback = function() vscode2026.load("dark") end,
-      })
+      require("onedark").load()
     end,
   },
   {

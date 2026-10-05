@@ -1,4 +1,5 @@
 {
+  "icon_theme": "Zed (Default)",
   "cli_default_open_behavior": "new_window",
   "session": {
     "trust_all_worktrees": true
@@ -28,7 +29,7 @@
   },
   // Kept in step with the Ghostty font by hand: Zed has no include mechanism,
   // so this git-tracked file is the only place to set it.
-  "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+  "buffer_font_family": "SF Mono Terminal",
   "vim_mode": true,
   "project_panel": {
     "default_width": 240,
@@ -51,7 +52,7 @@
       "JetBrainsMono Nerd Font Mono",
       "JetBrainsMono NFM"
     ],
-    "font_family": "JetBrainsMono Nerd Font",
+    "font_family": "SF Mono Terminal",
     "font_size": 14.0,
   },
   "languages": {
@@ -64,5 +65,9 @@
            "format_on_save": "on" },
   },
   // Pinned dark rather than a light/dark pair, matching the Ghostty theme.
-  "theme": "VS Code Dark 2026",
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "One Dark"
+  },
 }
