@@ -10,3 +10,7 @@ home/programs/claude/skills/impeccable/
 
 # Manual backups of Claude settings.
 home/programs/claude/settings.*.json.bak
+
+# Managed by the Claude app: org-synced skills and skills it removed.
+home/programs/claude/skills/synced/
+home/programs/claude/skills/.trash/
