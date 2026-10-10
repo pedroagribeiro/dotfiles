@@ -28,20 +28,31 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
   {
-    -- Atom One Dark. Loaded first (priority) so lualine's `theme = "auto"`
-    -- picks up its colours, and transparent so Ghostty's `background-opacity`
-    -- still shows through. vscode2026.lua is kept for switching back: replace
-    -- this entry with `require("vscode2026").load("dark")` above the table.
-    "navarasu/onedark.nvim",
+    -- Vesper. Loaded first (priority) so lualine's `theme = "auto"` picks up
+    -- its colours (vesper ships a lualine theme that honours `transparent`),
+    -- and transparent so Ghostty's `background-opacity` still shows through.
+    -- vscode2026.lua is kept for switching back: replace this entry with
+    -- `require("vscode2026").load("dark")` above the table.
+    "datsfilipe/vesper.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("onedark").setup({
-        style = "dark",
+      -- `transparent` only clears Normal and the statusline: the tabline
+      -- groups keep vesper's near-black, and barbar derives its buffer tabs
+      -- from them, so clear those too or the top strip paints over the
+      -- desktop. Overrides replace a group outright, hence restating `fg`;
+      -- the current buffer still stands out by its brighter text.
+      local colors = require("vesper.colors")
+      require("vesper").setup({
         transparent = true,
-        lualine = { transparent = true },
+        overrides = {
+          TabLine = { fg = colors.fgInactive, bg = "NONE" },
+          TabLineSel = { fg = colors.fgAlt, bg = "NONE" },
+          TabLineFill = { bg = "NONE" },
+          StatusLineNC = { fg = colors.fgInactive, bg = "NONE" },
+        },
       })
-      require("onedark").load()
+      vim.cmd.colorscheme("vesper")
     end,
   },
   {

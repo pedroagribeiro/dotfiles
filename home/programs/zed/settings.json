@@ -28,8 +28,9 @@
     }
   },
   // Kept in step with the Ghostty font by hand: Zed has no include mechanism,
-  // so this git-tracked file is the only place to set it.
-  "buffer_font_family": "SF Mono Terminal",
+  // so this git-tracked file is the only place to set it. NFM is the Nerd
+  // Font build of JetBrains Mono, the one Ghostty names too.
+  "buffer_font_family": "JetBrainsMono NFM",
   "vim_mode": true,
   "project_panel": {
     "default_width": 240,
@@ -52,7 +53,7 @@
       "JetBrainsMono Nerd Font Mono",
       "JetBrainsMono NFM"
     ],
-    "font_family": "SF Mono Terminal",
+    "font_family": "JetBrainsMono NFM",
     "font_size": 14.0,
   },
   "languages": {
@@ -68,6 +69,6 @@
   "theme": {
     "mode": "dark",
     "light": "One Light",
-    "dark": "One Dark"
+    "dark": "Vesper"
   },
 }
