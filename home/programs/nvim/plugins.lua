@@ -28,31 +28,40 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
   {
-    -- Vesper. Loaded first (priority) so lualine's `theme = "auto"` picks up
-    -- its colours (vesper ships a lualine theme that honours `transparent`),
-    -- and transparent so Ghostty's `background-opacity` still shows through.
-    -- vscode2026.lua is kept for switching back: replace this entry with
+    -- Catppuccin Mocha. Loaded first (priority) so lualine's `theme = "auto"`
+    -- picks up its colours, and transparent so Ghostty's `background-opacity`
+    -- still shows through. `auto_integrations` themes the installed plugins
+    -- (barbar, telescope, neo-tree, ...) from lazy.nvim's list, and those
+    -- follow `transparent_background` too. vscode2026.lua is kept for
+    -- switching back: replace this entry with
     -- `require("vscode2026").load("dark")` above the table.
-    "datsfilipe/vesper.nvim",
+    "catppuccin/nvim",
+    name = "catppuccin",
     lazy = false,
     priority = 1000,
     config = function()
-      -- `transparent` only clears Normal and the statusline: the tabline
-      -- groups keep vesper's near-black, and barbar derives its buffer tabs
-      -- from them, so clear those too or the top strip paints over the
-      -- desktop. Overrides replace a group outright, hence restating `fg`;
-      -- the current buffer still stands out by its brighter text.
-      local colors = require("vesper.colors")
-      require("vesper").setup({
-        transparent = true,
-        overrides = {
-          TabLine = { fg = colors.fgInactive, bg = "NONE" },
-          TabLineSel = { fg = colors.fgAlt, bg = "NONE" },
-          TabLineFill = { bg = "NONE" },
-          StatusLineNC = { fg = colors.fgInactive, bg = "NONE" },
-        },
+      -- The barbar integration and TabLine ignore `transparent_background`
+      -- and paint mantle/crust, so the top strip would cover the desktop.
+      -- Clear the background of everything but the current buffer, which
+      -- keeps its surface1 pill. Overrides merge into each group, so `fg`
+      -- stays as catppuccin set it.
+      local clear = { TabLine = { bg = "NONE" }, TabLineFill = { bg = "NONE" } }
+      for _, state in ipairs({ "Visible", "Inactive" }) do
+        for _, part in ipairs({ "", "Index", "Mod", "Sign", "Target" }) do
+          clear["Buffer" .. state .. part] = { bg = "NONE" }
+        end
+      end
+      clear.BufferTabpage = { bg = "NONE" }
+      clear.BufferTabpages = { bg = "NONE" }
+      clear.BufferTabpageFill = { bg = "NONE" }
+
+      require("catppuccin").setup({
+        flavour = "mocha",
+        transparent_background = true,
+        auto_integrations = true,
+        custom_highlights = clear,
       })
-      vim.cmd.colorscheme("vesper")
+      vim.cmd.colorscheme("catppuccin")
     end,
   },
   {

@@ -69,6 +69,6 @@
   "theme": {
     "mode": "dark",
     "light": "One Light",
-    "dark": "Vesper"
+    "dark": "Catppuccin Mocha"
   },
 }

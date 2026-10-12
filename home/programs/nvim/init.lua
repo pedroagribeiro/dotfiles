@@ -14,4 +14,4 @@ require("keymaps")
 require("commands")
 require("plugins")
 
--- The colorscheme is pinned to Vesper (vesper.nvim) in plugins.lua.
+-- The colorscheme is pinned to Catppuccin Mocha (catppuccin/nvim) in plugins.lua.
