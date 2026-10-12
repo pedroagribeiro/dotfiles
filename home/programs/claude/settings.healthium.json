@@ -1,13 +1,5 @@
 {
   "model": "opus[1m]",
-  "effortLevel": "high",
-  "theme": "dark",
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh"
-  },
-  "agentPushNotifEnabled": true,
-  "skipWorkflowUsageWarning": true,
   "hooks": {
     "SessionStart": [
       {
@@ -21,6 +13,23 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "atlassian@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "ruby-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "nt@nutrium": true,
+    "local-nt@pedro-local": true
   },
   "extraKnownMarketplaces": {
     "nutrium": {
@@ -36,19 +45,10 @@
       }
     }
   },
-  "enabledPlugins": {
-    "atlassian@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "figma@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "ruby-lsp@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "nt@nutrium": true,
-    "local-nt@pedro-local": true
-  },
+  "effortLevel": "high",
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "agentPushNotifEnabled": true,
   "autoMode": {
     "environment": [
       "### Org-wide",
@@ -65,5 +65,10 @@
       "**Primary use of Claude Code**: software development (personal dotfiles/system configuration)",
       "**Trusted repo**: /Users/pedroribeiro/.dotfiles (github.com/pedroagribeiro/dotfiles) — public repo; only this repo's own work belongs here, no confidential material"
     ]
+  },
+  "voiceEnabled": true,
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
   }
 }
