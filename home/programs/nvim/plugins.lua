@@ -28,23 +28,18 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
   {
-    -- Catppuccin Mocha. Loaded first (priority) so lualine's `theme = "auto"`
+    -- GitHub Dark Dimmed. Loaded first (priority) so lualine's `theme = "auto"`
     -- picks up its colours, and transparent so Ghostty's `background-opacity`
-    -- still shows through. `auto_integrations` themes the installed plugins
-    -- (barbar, telescope, neo-tree, ...) from lazy.nvim's list, and those
-    -- follow `transparent_background` too. vscode2026.lua is kept for
-    -- switching back: replace this entry with
-    -- `require("vscode2026").load("dark")` above the table.
-    "catppuccin/nvim",
-    name = "catppuccin",
+    -- still shows through. vscode2026.lua is kept for switching back: replace
+    -- this entry with `require("vscode2026").load("dark")` above the table.
+    "projekt0n/github-nvim-theme",
+    name = "github-theme",
     lazy = false,
     priority = 1000,
     config = function()
-      -- The barbar integration and TabLine ignore `transparent_background`
-      -- and paint mantle/crust, so the top strip would cover the desktop.
-      -- Clear the background of everything but the current buffer, which
-      -- keeps its surface1 pill. Overrides merge into each group, so `fg`
-      -- stays as catppuccin set it.
+      -- `transparent` leaves TabLine painted, and barbar derives its buffer
+      -- tabs from it, so the top strip would cover the desktop. Clear the
+      -- background of everything but the current buffer.
       local clear = { TabLine = { bg = "NONE" }, TabLineFill = { bg = "NONE" } }
       for _, state in ipairs({ "Visible", "Inactive" }) do
         for _, part in ipairs({ "", "Index", "Mod", "Sign", "Target" }) do
@@ -55,13 +50,11 @@ local plugins = {
       clear.BufferTabpages = { bg = "NONE" }
       clear.BufferTabpageFill = { bg = "NONE" }
 
-      require("catppuccin").setup({
-        flavour = "mocha",
-        transparent_background = true,
-        auto_integrations = true,
-        custom_highlights = clear,
+      require("github-theme").setup({
+        options = { transparent = true },
+        groups = { all = clear },
       })
-      vim.cmd.colorscheme("catppuccin")
+      vim.cmd.colorscheme("github_dark_dimmed")
     end,
   },
   {

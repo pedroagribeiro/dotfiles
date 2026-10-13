@@ -14,4 +14,4 @@ require("keymaps")
 require("commands")
 require("plugins")
 
--- The colorscheme is pinned to Catppuccin Mocha (catppuccin/nvim) in plugins.lua.
+-- The colorscheme is pinned to GitHub Dark Dimmed (github-nvim-theme) in plugins.lua.
