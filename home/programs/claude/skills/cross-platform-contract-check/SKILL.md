@@ -86,7 +86,12 @@ name work after the ticket: branches `ENG-3805-short-desc`, sub-branches `ENG-37
                               | [.number, .state, .headRefName, "→", .baseRefName, .mergedAt]'
    done
    ```
-   Run it with `bash -c` (the expansion `${KEYS//|/ OR }` is bash). The `jq` filter matters: the
+   Run it with `bash -c` (the expansion `${KEYS//|/ OR }` is bash). In Pedro's zsh, always brace
+   variables before a colon — `"${REF}:path"`, never `$REF:path` (zsh reads `:s`, `:h`… as modifiers).
+   Also add the **linked issues' subtasks** to `KEYS`: a backend ticket usually links one ticket per
+   platform, and the branches are named after *their* subtasks (e.g. iOS `T2-493.4-…` under `T2-468`).
+   Ignore local-only leftovers (`*-backup-*`, `*-wip`, branches older than the ticket's open PRs) and
+   don't widen the search to the epic/parent: it pulls in sibling tickets. The `jq` filter matters: the
    `gh` search is fuzzy and returns neighbouring keys. Merged branches are usually deleted from the
    remote, so a merged feature shows up only in `git log` and in the `MERGED` PRs.
 3. **Pick one analysis ref per repo:**
