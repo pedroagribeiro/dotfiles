@@ -58,29 +58,72 @@ the matching phase: it is the list of concrete ways these contracts break here.
 
 ## Workflow
 
-### 1 · Pin down the feature and the refs
-
-Ask (one short message, only what you can't infer):
-
-- **Which feature**, and a hint to locate it — a Jira key, PR links, an endpoint, a screen.
-- **Which ref in each repo.** Default is the integration branch (`origin/master` for `nutrium`,
-  `origin/dev` for the three mobile repos) plus any feature branches/PRs Pedro names. A
-  half-merged feature analysed at `dev` alone gives false "missing" findings.
-
-If you can't ask (running as a subagent, or Pedro said "just go"), take the defaults and record
-them, with commit SHAs, under **Âmbito**.
+### 1 · Find the feature in every repo
 
 Read code at a ref with `git -C <repo> show <ref>:<path>` and `git -C <repo> grep <pattern> <ref>`
 — **never check out branches**: these are Pedro's working trees, often mid-work. `git fetch` is fine.
 
-Also record the **KMP version pinned** by each app at the chosen ref (see platform map). If
+**If Pedro gave a Jira key, discover the refs from it — don't ask for them.** All four repos
+name work after the ticket: branches `ENG-3805-short-desc`, sub-branches `ENG-3770.1-…` or
+`T2-466-4-…`, commits `ENG-3805: …` / `ENG-3805 - …`, merges `Merge branch 'ENG-3805-…'` /
+`Merge pull request #N from healthium/ENG-3805-…`. GitHub repos are `healthium/<repo-dir>`.
+
+1. **Expand the key set.** Fetch the ticket with the Atlassian MCP `getJiraIssue`
+   (cloudId `be0a3a51-0216-4a52-857c-a642ed5f5cd2`): summary, description, **subtasks, parent and
+   linked issues**. Work is often split by platform into subtasks with their own keys, so collect
+   all of them. If the MCP isn't available, carry on with the key alone and say so.
+2. **Search each repo** (fetch first; the regex stops `ENG-38` matching `ENG-3805`):
+   ```bash
+   KEYS='ENG-3805|ENG-3806'                                  # ticket + subtasks/parent
+   RE="(^|[^A-Z0-9])($KEYS)([.-][0-9]+)?([^0-9]|$)"
+   for r in nutrium nutrium-mobile-shared nutrium-ios nutrium-android; do
+     echo "== $r"; git -C $r fetch --prune --quiet origin
+     git -C $r for-each-ref --sort=-committerdate --format='%(refname:short)  %(committerdate:short)' refs/remotes refs/heads | grep -E "$RE"
+     git -C $r log origin/dev --oneline -E --grep="$RE" | head -20
+     gh pr list -R healthium/$r --state all --search "${KEYS//|/ OR }" --limit 30 \
+       --json number,title,state,headRefName,baseRefName,mergedAt \
+       | jq -c --arg re "$RE" '.[] | select((.title+" "+.headRefName) | test($re))
+                              | [.number, .state, .headRefName, "→", .baseRefName, .mergedAt]'
+   done
+   ```
+   Run it with `bash -c` (the expansion `${KEYS//|/ OR }` is bash). The `jq` filter matters: the
+   `gh` search is fuzzy and returns neighbouring keys. Merged branches are usually deleted from the
+   remote, so a merged feature shows up only in `git log` and in the `MERGED` PRs.
+3. **Pick one analysis ref per repo:**
+   - **Open PR(s)** → the branch tip. For stacked PRs (`baseRefName` is another feature branch),
+     take the top of the stack: the head that no other open PR uses as base. Several independent
+     open branches in one repo → list them all; each one's changed files are read at its own ref.
+   - **Branch without a PR** → treat it like an open PR (work in progress, often the shared side
+     that gets its PR later). If it's older than the ticket's other work or merged into nothing,
+     mention it and ask whether it's still live.
+   - **Merged only** → `origin/dev`. Also note whether it shipped: for `nutrium`,
+     `git merge-base --is-ancestor <merge-sha> origin/master` tells you whether it's in production
+     (`master` = deployed); for the mobile repos, `git branch -r --contains <merge-sha> | grep RELEASE`
+     and `git tag --contains <merge-sha>` give the first release that includes it.
+   - **Nothing found** → `origin/dev`: the existing contract the other repos' change must
+     still match. A repo with no work for the ticket is itself worth a line — a backend change with
+     no Android branch is either fine or the bug.
+4. **Get the feature diff** per repo: `git -C <repo> diff --stat origin/dev...<ref>` (or the
+   merged PRs' commits). These files are where step 2 starts. They aren't the whole surface,
+   because the unchanged code they call is part of the contract too.
+5. **Show the ref map and keep going.** Put it in a table: repo · keys found · branch/PR · state
+   (open / merged / released in X) · analysis ref + SHA. Stop and ask only when it's genuinely
+   ambiguous, e.g. two competing branches, or branch names that don't look like the same feature.
+
+**Without a key** (feature name, endpoint, screen), ask once for a key or PR links. If there's
+none, use `origin/dev` in all four repos (in `nutrium`, `dev` is the integration branch and
+`master` is production; add `origin/master` when the question is "what's live now") and
+locate the feature by grepping for its endpoint/model names. If you can't ask (running as a
+subagent, or Pedro said "just go"), use the defaults and record them, with SHAs, under **Âmbito**.
+
+Also record the **KMP version pinned** by each app at its analysis ref (see platform map). If
 the shared-lib change for this feature isn't in the pinned release, that alone is a finding.
 
 ### 2 · Inventory the contract surface — one subagent per repo, in parallel
 
 Dispatch four `general-purpose` subagents in a single message (not `Explore` — this needs
-exact reading, not excerpts). Each gets: the repo path, the ref, the feature hints, the
-absolute path of `references/platform-map.md` with the section heading to read (point, don't
+exact reading, not excerpts). Each gets: the repo path, the ref, the feature hints, that repo's
+feature diff file list from step 1, the absolute path of `references/platform-map.md` with the section heading to read (point, don't
 paste), and the **output contract below**. Each returns a structured inventory, not prose:
 
 ```
@@ -142,24 +185,81 @@ many candidates. Classify:
   in `nutrium-api/v2`, a log search.
 - **Dropped** — say nothing about it.
 
-### 5 · Report
+### 5 · Decide the fix for each problem
+
+Pedro wants a recommendation, not a menu. For every confirmed or plausible problem, find where
+it *could* be fixed (backend, shared, iOS, Android, several of them), then pick one using these
+criteria in order:
+
+1. **Does it protect the installed apps?** If old app versions are affected, only a backend
+   change reaches them without an App Store / Play release and a wait for updates. Prefer a
+   tolerant backend fix (keep emitting the old shape, accept both inputs, add instead of rename),
+   plus the client fix for the future. A backend fix that changes what old apps receive is
+   never the answer.
+2. **One fix or two?** A bug in logic both apps run through the shared lib is fixed once in
+   `nutrium-mobile-shared`. Fixing it separately in iOS and Android is two PRs that will drift.
+   If the logic lives twice in the apps (legacy, or app-built `S*Model`s), say whether moving it
+   into the shared lib is worth it now, or whether that's a follow-up.
+3. **Release cost and lag.** The backend deploys continuously. A shared fix needs a shared
+   release, the pin bumped in **both** apps (`ConfigData.kt`, `setup_nutrium_project.sh`) and an
+   app release on each store. An app-only fix needs just one app release. When two options fix
+   the problem equally well, the one that ships sooner wins.
+4. **Fits the repo's existing pattern.** The fix should look like code already there. Cite the
+   precedent (`file:line`) for how that repo already handles the same situation elsewhere, e.g.
+   a mapper that already drops unknown values or a serializer that already uses `iso8601(3)`.
+5. **Smallest change that removes the failure mode**, not just the symptom seen. Making one field
+   nullable fixes one crash; if the real problem is that the DTO is stricter than the serializer
+   across the board, say so. Don't propose the refactor unless the narrow fix leaves the bug
+   class open in a way that will bite this feature again.
+
+6. **iOS and Android end up behaving the same.** If the fix changes what users see (an error
+   state instead of an empty form, a limit, a refresh), check that the other platform already
+   behaves that way or gets the same change. Otherwise the fix creates a new 🟡 divergence.
+
+Edge cases of the criteria:
+
+- **No backend fix possible** (client-side state, caches, UI handling): say so explicitly, and
+  say that installed versions stay exposed until they update. Pedro needs to weigh that.
+- **Fix now + follow-up.** When the quick fix (one app, ships sooner) and the structural one
+  (shared, fixes both) cover different parts of the problem, recommend both and label which is
+  the fix and which is the follow-up. Follow-ups go in the Plano too, last, marked as such.
+- **No precedent in the repo** for criterion 4: cite the closest analogous pattern and say the
+  exact precedent doesn't exist, so the reviewer knows it's new ground.
+- **Plausible findings**: say whether the fix should wait for confirmation. If it's cheap and
+  harmless, recommend doing it anyway. If it's costly or risky, confirm first, and say how.
+
+Write it down as: **recommendation** (repo, file, what changes, with a short code sketch when it
+makes the change unambiguous) → **why**, in terms of the criteria → **rejected alternative(s)** in
+one line each with the reason. If several fixes are needed together, give the **order** they must
+ship in.
+
+Recommend from the evidence: if you aren't sure the fix is safe (e.g. you can't see who else calls
+that serializer), say what to check before doing it.
+
+### 6 · Report
 
 Write in **European Portuguese** (code identifiers stay as they are). Shape:
 
 1. **Veredicto** — one or two sentences: do the contracts match, and what's the worst thing found.
-2. **Âmbito** — feature, refs analysed per repo, KMP pins, which platforms use shared vs legacy
-   for this feature. Short.
+2. **Âmbito** — the ref map from step 1 (keys, branch/PR, state, SHA per repo), KMP pins, which
+   platforms use shared vs legacy for this feature. Short.
 3. **Problemas** — ordered by severity, each with: what breaks, for whom (all users / iOS only /
-   apps older than X / after next backend deploy), evidence on both sides, and the smallest fix
-   and *which repo* it belongs in. Severity scale:
+   apps older than X / after next backend deploy), evidence on both sides, and **Solução
+   recomendada**: the step-5 recommendation, why, and the rejected alternatives in one line.
+   Severity scale:
    - 🔴 parte já ou parte no próximo deploy
    - 🟠 parte versões antigas da app em produção, ou só com dados específicos
    - 🟡 divergência iOS/Android ou fragilidade latente
-4. **Contratos verificados** — the matrix (condensed), so Pedro can see what *was* checked and
+4. **Plano de correção** — only if there are problems. The recommended fixes grouped **by repo**,
+   in the order they must ship (backend tolerance → shared release → pin bumps → apps), each
+   with the problem number(s) it closes. If a fix belongs in one of the ticket's open PRs from
+   step 1, name that PR, because it's cheaper to fix there than in a new one. If step 1 found no
+   open PRs (or wasn't run), say so in one line.
+5. **Contratos verificados** — the matrix (condensed), so Pedro can see what *was* checked and
    matched, not just the failures. Absence of findings is only meaningful if coverage is visible.
    Checklist items that don't apply to the feature go in one line ("N/A: paginação, flags, v0/v1"),
    not a row each.
-5. **Não verificado** — what couldn't be checked and why.
+6. **Não verificado** — what couldn't be checked and why.
 
 Keep it in the terminal unless it's long or Pedro wants to share it; then offer an artifact
 (the `artifact-style` skill applies).
@@ -175,3 +275,8 @@ Keep it in the terminal unless it's long or Pedro wants to share it; then offer 
   Removing, renaming, retyping or newly-requiring anything is a break for every installed version
   that still sends/reads the old shape, even if all four `dev` branches agree.
 - **Reporting a mismatch from one side's code alone.** No evidence on both sides, no finding.
+- **Analysing `dev` when the work is on a branch.** With a ticket key, the step-1 search is
+  mandatory: a half-merged feature analysed at `dev` alone gives false "missing" findings.
+- **Recommending the fix that's easiest to write instead of the one that reaches users.** A
+  client-only fix for something that breaks installed versions leaves them broken until people
+  update.
