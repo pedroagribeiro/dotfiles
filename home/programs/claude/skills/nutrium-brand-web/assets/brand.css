@@ -1,0 +1,58 @@
+/* Nutrium brand layer over artifact-style. Token values come from the Nutrium Design System ramps. */
+@font-face {
+  font-family: "Geomanist";
+  src: url("__GEOMANIST__") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --bg: #FAFCFF; --surface: #FFFFFF; --soft: #EBF4FF;
+  --fg: #343A46; --heading: #1F232C; --muted: #5E6982; --border: #E4E7ED;
+  --accent: #62CDC0; --accent-text: #23756B; --accent-soft: #E3F4F4; --on-accent: #1F232C;
+  --accent-2: #3569AD; --accent-2-soft: #EBF4FF;
+  --ok: #23756B;   --ok-soft: #E3F4F4;
+  --warn: #8A5A00; --warn-soft: #FFF4D9;
+  --err: #AD3E26;  --err-soft: #FDE5DD;
+  --code-key: #23756B;
+  --logo: #1AB394;
+  --glow-a: rgba(175, 226, 226, 0.6);
+  --glow-b: rgba(189, 220, 255, 0.65);
+  --shadow: 0 4px 21px rgba(0, 0, 0, 0.07);
+  --grad-accent: linear-gradient(100deg, #1AB394 0%, #62CDC0 42%, #83BCFF 100%);
+  --font-display: "Geomanist", "Poppins", "Helvetica Neue", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181F; --surface: #1D222B; --soft: #1B2636;
+    --fg: #DCE1E9; --heading: #F3F5F9; --muted: #A3ACBC; --border: #2F3541;
+    --accent: #62CDC0; --accent-text: #7FDACF; --accent-soft: #15302D; --on-accent: #14181F;
+    --accent-2: #8CBEF5; --accent-2-soft: #1B2636;
+    --ok: #7FDACF;   --ok-soft: #15302D;
+    --warn: #F5C547; --warn-soft: #33290F;
+    --err: #F59A80;  --err-soft: #3A2421;
+    --code-key: #7FDACF;
+    --logo: #FFFFFF;
+    --glow-a: rgba(98, 205, 192, 0.16);
+    --glow-b: rgba(131, 188, 255, 0.14);
+    --shadow: 0 4px 21px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181F; --surface: #1D222B; --soft: #1B2636;
+  --fg: #DCE1E9; --heading: #F3F5F9; --muted: #A3ACBC; --border: #2F3541;
+  --accent: #62CDC0; --accent-text: #7FDACF; --accent-soft: #15302D; --on-accent: #14181F;
+  --accent-2: #8CBEF5; --accent-2-soft: #1B2636;
+  --ok: #7FDACF;   --ok-soft: #15302D;
+  --warn: #F5C547; --warn-soft: #33290F;
+  --err: #F59A80;  --err-soft: #3A2421;
+  --code-key: #7FDACF;
+  --logo: #FFFFFF;
+  --glow-a: rgba(98, 205, 192, 0.16);
+  --glow-b: rgba(131, 188, 255, 0.14);
+  --shadow: 0 4px 21px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+.logo { width: 136px; height: auto; display: block; color: var(--logo); }
+footer .logo { width: 96px; }

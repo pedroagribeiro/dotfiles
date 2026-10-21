@@ -267,7 +267,7 @@ Write in **European Portuguese** (code identifiers stay as they are). Shape:
 6. **Não verificado** — what couldn't be checked and why.
 
 Keep it in the terminal unless it's long or Pedro wants to share it; then offer an artifact
-(the `artifact-style` skill applies).
+(the `artifact-style` skill applies, plus `nutrium-brand-web` for the Nutrium branding).
 
 ## Common mistakes
 
