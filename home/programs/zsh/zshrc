@@ -16,7 +16,7 @@ export HISTFILE="$HOME/.zsh_history"
 # here to switch back permanently, or run `ZSH_PROMPT=p10k exec zsh` to try one
 # for a single shell. Read here (p10k's instant prompt has to stay near the top
 # of the file) and again in home/programs/zsh/theme.zsh, which draws the prompt.
-export ZSH_PROMPT="${ZSH_PROMPT:-starship}"
+export ZSH_PROMPT="${ZSH_PROMPT:-p10k}"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
