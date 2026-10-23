@@ -36,7 +36,7 @@
 
   --font-sans: "Poppins", "Helvetica Neue", system-ui, sans-serif;
   --font-display: "Poppins", "Helvetica Neue", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-mono: Menlo, "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   --r-sm: 8px;
   --r-md: 14px;
@@ -432,6 +432,118 @@ pre {
 }
 .path { color: var(--heading); overflow-wrap: anywhere; min-width: 0; }
 
+/* ---------- Endpoint card (one API call: endpoint line, then labelled blocks) ---------- */
+.ep {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  scroll-margin-top: 16px;
+}
+.ep > p { max-width: 68ch; }
+.ep .endpoint .path { font-weight: 600; }
+.block { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.block > h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+/* ---------- Status codes (a pill per HTTP status, then what it means and its body) ---------- */
+.codes { display: flex; flex-direction: column; gap: 14px; }
+.code { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: start; }
+.code > .pill { text-align: center; font-family: var(--font-mono); }
+.code > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.callout ul, .plain-list { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+.values { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; color: var(--muted); }
+
+/* ---------- ER diagram (tables as cards on a soft canvas; curved links drawn by the script below) ---------- */
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 13px; color: var(--muted); }
+.legend > span { display: inline-flex; gap: 8px; align-items: center; }
+.sw { width: 12px; height: 12px; border-radius: 4px; display: inline-block; background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
+.sw.add { background: var(--ok-soft); box-shadow: inset 0 0 0 1px var(--ok); }
+.sw.chg { background: var(--warn-soft); box-shadow: inset 0 0 0 1px var(--warn); }
+.sw.del { background: var(--err-soft); box-shadow: inset 0 0 0 1px var(--err); }
+.sw.line { width: 28px; height: 0; border-radius: 0; box-shadow: none; background: none; border-top: 2px solid var(--muted); }
+.sw.line.id { border-top: 2px dashed var(--ok); }
+.er-scroll {
+  overflow-x: auto;
+  background: var(--soft);
+  border-radius: var(--r-lg);
+  width: min(1200px, calc(100vw - 32px));
+  margin-left: calc(50% - min(600px, 50vw - 16px));
+}
+.er {
+  position: relative;
+  min-width: 980px;
+  padding: 36px;
+  display: grid;
+  column-gap: 96px;
+  row-gap: 56px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+.er-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.er-lines.labels { z-index: 2; }
+.er-lines path { fill: none; stroke-width: 1.5; stroke-linecap: round; }
+.er-lines path.fk { stroke: var(--muted); }
+.er-lines path.id { stroke: var(--ok); stroke-dasharray: 5 5; }
+.er-lines circle { stroke-width: 1.5; fill: var(--surface); }
+.er-lines circle.fk { stroke: var(--muted); }
+.er-lines circle.id { stroke: var(--ok); }
+.er-lines .lbl-bg { fill: var(--surface); stroke: var(--border); }
+.er-lines text { font: 500 10.5px var(--font-sans); }
+.er-lines text.fk { fill: var(--muted); }
+.er-lines text.id { fill: var(--ok); }
+.ent {
+  position: relative;
+  z-index: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.ent.add { box-shadow: inset 0 3px 0 var(--ok); }
+.ent.chg { box-shadow: inset 0 3px 0 var(--warn); }
+.ent-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.ent-head > span:first-child { font: 600 13px/1.3 var(--font-mono); color: var(--heading); overflow-wrap: anywhere; }
+.ent.old .ent-head > span:first-child { color: var(--muted); font-weight: 500; }
+.ent-head .pill { font-size: 11px; padding: 4px 8px; }
+.f {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 14px;
+  font: 400 12px/1.45 var(--font-mono);
+  color: var(--muted);
+}
+.f + .f { border-top: 1px solid var(--soft); }
+.f i { font-style: normal; font-weight: 700; text-align: center; }
+.f b { font-weight: 400; overflow-wrap: anywhere; }
+.f em { font: 500 11px/1.45 var(--font-sans); color: var(--muted); white-space: nowrap; }
+.f.add { background: var(--ok-soft); color: var(--heading); }
+.f.add i, .f.add em { color: var(--ok); }
+.f.add b { font-weight: 500; }
+.f.chg { background: var(--warn-soft); color: var(--heading); }
+.f.chg i, .f.chg em { color: var(--warn); }
+.f.del { background: var(--err-soft); color: var(--err); }
+.f.del i, .f.del em { color: var(--err); }
+.f.del b { text-decoration: line-through; }
+
 footer { border-top: 1px solid var(--border); }
 footer .wrap {
   padding-block: 24px 40px;
@@ -444,8 +556,95 @@ footer .wrap {
   color: var(--muted);
 }
 
+/* ---------- View switch (one part of the page at a time; the script below shows the chosen one) ---------- */
+.view-switch {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  margin-top: 8px;
+  background: var(--soft);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+}
+.view-switch a {
+  padding: 9px 18px;
+  border-radius: var(--r-pill);
+  font: 500 14px/1.2 var(--font-sans);
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.view-switch a:hover { color: var(--heading); }
+.view-switch a[aria-current="true"] { background: var(--surface); color: var(--heading); box-shadow: inset 0 0 0 1px var(--border); }
+.view-switch a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Each view stacks its sections like main .wrap does. */
+[data-view] { display: flex; flex-direction: column; gap: 72px; min-width: 0; }
+[data-view][hidden] { display: none; }
+
+/* ---------- Collapsible task (details.task: a one-line summary, then the body; buttons open or close them all) ---------- */
+.task-list { display: flex; flex-direction: column; gap: 10px; }
+details.task { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); min-width: 0; }
+details.task > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+}
+details.task > summary::-webkit-details-marker { display: none; }
+details.task > summary::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: 2px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg);
+}
+details.task[open] > summary::before { transform: rotate(45deg); }
+details.task > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.task-id { font: 600 13px/1.4 var(--font-mono); color: var(--accent-text); white-space: nowrap; }
+.task-title { flex: 1 1 240px; min-width: 0; font-weight: 600; color: var(--heading); }
+.task-title code { font-size: 0.85em; }
+.task-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.task-meta .chip { font-size: 12px; padding: 5px 10px; }
+.task-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px 18px 39px;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+.task-body > * { margin: 0; }
+.task-body h4 { font: 600 11.5px/1.4 var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-top: 4px; }
+.task-body ul, .task-body ol { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 6px; }
+.task-body ul ul, .task-body ol ul { margin-top: 6px; }
+.task-body blockquote { margin: 0; padding: 8px 14px; border-left: 3px solid var(--border); color: var(--muted); }
+.task-body pre { max-width: 100%; }
+.task-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.task-tools button {
+  font: 500 13px/1 var(--font-sans);
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+}
+.task-tools button:hover { color: var(--heading); border-color: var(--muted); }
+.checklist { list-style: none; padding-left: 0 !important; }
+.checklist li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.checklist li::before { content: ""; width: 12px; height: 12px; border: 1.5px solid var(--muted); border-radius: 3px; transform: translateY(1px); }
+
 /* ---------- Narrow screens ---------- */
 @media (max-width: 760px) {
+  .task-body { padding-left: 18px; }
   .panel { grid-template-columns: 1fr; padding: 20px; }
   .cards, .stats, .options { grid-template-columns: 1fr; }
   .flow { flex-direction: column; }
@@ -455,11 +654,134 @@ footer .wrap {
 }
 @media (max-width: 560px) {
   .option dl > div { grid-template-columns: 1fr; gap: 2px; }
+  .code { grid-template-columns: 1fr; gap: 6px; }
+  .code > .pill { justify-self: start; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
 </style>
+<script>
+/* ER diagram: draws one curved link per [from, to, "fk" | "id", label] in .er[data-edges], between box edges. */
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  function node(name, attrs) {
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+  function box(el, root) {
+    var r = el.getBoundingClientRect(), o = root.getBoundingClientRect();
+    return { x: r.left - o.left + r.width / 2, y: r.top - o.top + r.height / 2, w: r.width / 2, h: r.height / 2 };
+  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  // Leave through the side with the wider gap, and stay level with the other box where the two overlap.
+  function ends(a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y, sx = dx < 0 ? -1 : 1, sy = dy < 0 ? -1 : 1;
+    var gapX = Math.abs(dx) - a.w - b.w, gapY = Math.abs(dy) - a.h - b.h, inset = 18;
+    if (gapX >= gapY) {
+      var y = clamp((Math.max(a.y - a.h, b.y - b.h) + Math.min(a.y + a.h, b.y + b.h)) / 2,
+        Math.max(a.y - a.h, b.y - b.h) + inset, Math.min(a.y + a.h, b.y + b.h) - inset);
+      var pa = isNaN(y) ? a.y : clamp(y, a.y - a.h + inset, a.y + a.h - inset);
+      var pb = isNaN(y) ? b.y : clamp(y, b.y - b.h + inset, b.y + b.h - inset);
+      return { p: { x: a.x + sx * a.w, y: pa }, q: { x: b.x - sx * b.w, y: pb }, horizontal: true };
+    }
+    var x = (Math.max(a.x - a.w, b.x - b.w) + Math.min(a.x + a.w, b.x + b.w)) / 2;
+    var xa = clamp(x, a.x - a.w + inset, a.x + a.w - inset), xb = clamp(x, b.x - b.w + inset, b.x + b.w - inset);
+    return { p: { x: xa, y: a.y + sy * a.h }, q: { x: xb, y: b.y - sy * b.h }, horizontal: false };
+  }
+  function draw(root) {
+    var svg = root.querySelector(".er-lines:not(.labels)"), top = root.querySelector(".er-lines.labels"), edges;
+    try { edges = JSON.parse(root.getAttribute("data-edges") || "[]"); } catch (e) { return; }
+    // Links sit under the boxes; labels sit above them, so a label in a narrow gap is never hidden.
+    if (!svg) { svg = node("svg", { "class": "er-lines", "aria-hidden": "true" }); root.prepend(svg); }
+    if (!top) { top = node("svg", { "class": "er-lines labels", "aria-hidden": "true" }); root.appendChild(top); }
+    [svg, top].forEach(function (layer) { while (layer.firstChild) layer.removeChild(layer.firstChild); });
+    var labels = [];
+    edges.forEach(function (e) {
+      var from = document.getElementById(e[0]), to = document.getElementById(e[1]);
+      if (!from || !to) return;
+      var end = ends(box(from, root), box(to, root)), p = end.p, q = end.q, c1, c2;
+      if (end.horizontal) {
+        var mx = (q.x - p.x) / 2;
+        c1 = { x: p.x + mx, y: p.y }; c2 = { x: q.x - mx, y: q.y };
+      } else {
+        var my = (q.y - p.y) / 2;
+        c1 = { x: p.x, y: p.y + my }; c2 = { x: q.x, y: q.y - my };
+      }
+      svg.appendChild(node("path", { d: "M" + p.x + " " + p.y + " C" + c1.x + " " + c1.y + " " + c2.x + " " + c2.y + " " + q.x + " " + q.y, "class": e[2] }));
+      svg.appendChild(node("circle", { cx: p.x, cy: p.y, r: 2.5, "class": e[2] }));
+      svg.appendChild(node("circle", { cx: q.x, cy: q.y, r: 3.5, "class": e[2] }));
+      if (e[3]) labels.push({ x: (p.x + 3 * c1.x + 3 * c2.x + q.x) / 8, y: (p.y + 3 * c1.y + 3 * c2.y + q.y) / 8, text: e[3], cls: e[2] });
+    });
+    labels.forEach(function (l) {
+      var t = node("text", { x: l.x, y: l.y + 3.5, "text-anchor": "middle", "class": l.cls });
+      t.textContent = l.text;
+      top.appendChild(t);
+      var bb = t.getBBox();
+      top.insertBefore(node("rect", { x: bb.x - 7, y: bb.y - 3, width: bb.width + 14, height: bb.height + 6, rx: (bb.height + 6) / 2, "class": "lbl-bg" }), t);
+    });
+  }
+  function start() {
+    document.querySelectorAll(".er[data-edges]").forEach(function (root) {
+      var redraw = function () { draw(root); };
+      redraw();
+      if (window.ResizeObserver) new ResizeObserver(redraw).observe(root);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+
+/* View switch: shows the [data-view] the hash points into (or that holds the linked element), else the last one chosen. */
+(function () {
+  function start() {
+    var nav = document.querySelector(".view-switch");
+    var views = Array.prototype.slice.call(document.querySelectorAll("[data-view]"));
+    if (!nav || !views.length) return;
+    var tabs = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+    var key = "view:" + location.pathname;
+    function viewOf(hash) {
+      var el = hash && hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+      var view = el && el.closest("[data-view]");
+      return view ? view.id : null;
+    }
+    function show(id) {
+      views.forEach(function (v) { v.hidden = v.id !== id; });
+      tabs.forEach(function (t) { t.setAttribute("aria-current", t.getAttribute("href") === "#" + id ? "true" : "false"); });
+      try { localStorage.setItem(key, id); } catch (e) {}
+    }
+    function route() {
+      var id = viewOf(location.hash), saved = null;
+      if (!id) { try { saved = localStorage.getItem(key); } catch (e) {} }
+      show(id || (saved && document.getElementById(saved) ? saved : views[0].id));
+      var target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (target && !target.hasAttribute("data-view")) target.scrollIntoView();
+    }
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function (e) {
+        e.preventDefault();
+        history.replaceState(null, "", t.getAttribute("href"));
+        route();
+      });
+    });
+    window.addEventListener("hashchange", route);
+    route();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+
+/* Task tools: a button with data-tasks="open" or "close" opens or closes every details.task in its section. */
+(function () {
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-tasks]");
+    if (!b) return;
+    var scope = b.closest("section") || document;
+    var open = b.getAttribute("data-tasks") === "open";
+    scope.querySelectorAll("details.task").forEach(function (d) { d.open = open; });
+  });
+})();
+</script>
 <!-- brand:head -->
 
 <header class="hero">
@@ -486,6 +808,56 @@ footer .wrap {
         <h2 id="s1">Section heading as a statement or question</h2>
       </div>
       <p class="section-intro">Short intro paragraph.</p>
+    </section>
+
+    <section aria-labelledby="s-ep">
+      <div class="section-head">
+        <div class="eyebrow">Endpoint card</div>
+        <h2 id="s-ep">One API call per card</h2>
+      </div>
+      <article class="ep" id="ep-example">
+        <div class="endpoint"><span class="method">POST</span><span class="path">insurance/example</span><span class="pill ok">New</span></div>
+        <p>What the call does, in one or two sentences.</p>
+        <div class="block"><h3>Input</h3>
+<pre>{ <span class="tok-key">"amount_cents"</span>: <span class="tok-num">2500</span> }</pre></div>
+        <div class="block"><h3>Status codes</h3>
+          <div class="codes">
+            <div class="code"><span class="pill ok">201</span><div><span>Created.</span></div></div>
+            <div class="code"><span class="pill warn">422</span><div><span>What went wrong and what the app does.</span>
+<pre>{ <span class="tok-key">"errors"</span>: [<span class="tok-str">"amount_invalid"</span>] }</pre></div></div>
+            <div class="code"><span class="pill err">404</span><div><span>Not found.</span></div></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section aria-labelledby="s-er">
+      <div class="section-head">
+        <div class="eyebrow">ER diagram</div>
+        <h2 id="s-er">Tables, with what a change adds highlighted</h2>
+      </div>
+      <div class="legend">
+        <span><span class="sw add"></span> Added</span>
+        <span><span class="sw chg"></span> Changed</span>
+        <span><span class="sw del"></span> Removed</span>
+        <span><span class="sw"></span> Existing</span>
+        <span><span class="sw line"></span> Foreign key</span>
+        <span><span class="sw line id"></span> Plain id</span>
+      </div>
+      <div class="er-scroll">
+        <div class="er" style="grid-template-areas: 'parent . child'" data-edges='[["e-child", "e-parent", "id", "parent_id"]]'>
+          <div class="ent old" id="e-parent" style="grid-area: parent">
+            <div class="ent-head"><span>parents</span></div>
+            <div class="f"><i></i><b>id</b><em>PK</em></div>
+          </div>
+          <div class="ent add" id="e-child" style="grid-area: child">
+            <div class="ent-head"><span>children</span><span class="pill ok">New table</span></div>
+            <div class="f add"><i>+</i><b>id</b><em>PK</em></div>
+            <div class="f add"><i>+</i><b>parent_id</b><em>id</em></div>
+            <div class="f del"><i>−</i><b>legacy_column</b><em>string</em></div>
+          </div>
+        </div>
+      </div>
     </section>
 
   </div>

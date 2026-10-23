@@ -1,6 +1,6 @@
 ---
 name: artifact-style
-description: Pedro's house visual language for anything published as a page — Claude artifacts, standalone HTML, design docs, reports, dashboards, plans, one-pagers, mockups. A soft product-page look in Poppins with JetBrains Mono for code, an 880px reading column, a header with two diffuse glows, rounded cards and one indigo accent, light and dark themes both designed. Use whenever building a page for Pedro, including when he says "make me a page", "write this up", "put this somewhere I can share", or asks for an artifact, HTML file, doc or dashboard. It is brand-neutral; a brand layer (e.g. nutrium-brand-web) can sit on top by overriding its tokens.
+description: Pedro's house visual language for anything published as a page — Claude artifacts, standalone HTML, design docs, reports, dashboards, plans, one-pagers, mockups. A soft product-page look in Poppins with Menlo for code, an 880px reading column, a header with two diffuse glows, rounded cards and one indigo accent, light and dark themes both designed. Use whenever building a page for Pedro, including when he says "make me a page", "write this up", "put this somewhere I can share", or asks for an artifact, HTML file, doc or dashboard. It is brand-neutral; a brand layer (e.g. nutrium-brand-web) can sit on top by overriding its tokens.
 ---
 
 # Artifact style
@@ -55,8 +55,11 @@ rules only ever use `var(--…)`.
 
 ## Lettering
 
-**Poppins for everything read. JetBrains Mono for anything that is code** — paths,
-field names, JSON, endpoints, status codes. Material Symbols Outlined for icons.
+**Poppins for everything read. Menlo for anything that is code** — paths,
+field names, JSON, endpoints, status codes. Menlo ships only with macOS and iOS, so
+`--font-mono` falls back to JetBrains Mono (still loaded from Google Fonts, and only
+downloaded where Menlo is missing), then the system monospace. Menlo has no 500 or 600
+weight; those render as its bold. Material Symbols Outlined for icons.
 `--font-display` is the eyebrow face; in the base it is Poppins too, and a brand layer
 may swap it.
 
@@ -89,6 +92,52 @@ The hero (eyebrow, h1, lede, chips), section head, table in `.table-scroll`, cal
 status pills, feature panel with a highlight, icon cards, flow with arrows, numbered
 steps, stat tiles, option cards with a `dl`, icon list, code block, endpoint line and
 footer. Use numbered steps only when the order is real.
+
+For API and data-model pages the template also carries:
+
+- **Endpoint card** (`article.ep`): the endpoint line, a short description and
+  `.block`s with a micro-type `h3` (Input, Output, Status codes).
+- **Status codes** (`.codes` > `.code`): a `.pill` per HTTP status (`ok` for 2xx,
+  `warn` for 4xx the app handles, `err` for 403/404/5xx), then what it means and its body.
+- **ER diagram** (`.er-scroll` > `.er`): tables as white `.ent` cards (14px radius) on a
+  `--soft` canvas with the 20px radius. The table name is mono 600 in `--heading`; an
+  existing table's name drops to `--muted`. A new or changed table gets a 3px inset rule
+  along its top in `--ok` or `--warn`, plus a status pill in the header. Fields are `.f`
+  rows in mono 12px, with the type in small sans on the right; `add` / `chg` / `del`
+  rows sit on their state's `-soft` fill with a `+` / `~` / `−` marker, and `del`
+  strikes the name through. Unmarked rows are existing fields in `--muted`.
+  Place the boxes with an inline `grid-template-areas` on `.er` and `grid-area` on each
+  box. List the links in `data-edges` as `[from-id, to-id, "fk" | "id", label]`: the
+  script draws curved links between box edges (horizontal when the boxes sit side by
+  side, vertical otherwise), solid `--muted` for a foreign key and dashed `--ok` for a
+  plain id, with the label in a white pill at the middle. Links leave through the side
+  with the wider gap and stay level with the other box where the two overlap; labels are
+  drawn on a layer above the boxes, so a short gap never hides one. The canvas breaks out
+  of the 880px reading column, up to 1200px, because three columns of table names do not
+  fit in it. The `.legend` uses `.sw`
+  squares (`add`, `chg`, `del`, plain for existing) and `.sw.line` / `.sw.line.id` for the
+  two kinds of link. Keep `.er`'s `min-width`, so a narrow screen scrolls the diagram
+  instead of squeezing it, and lay the boxes out so no link crosses a box.
+- `.plain-list` for a bulleted list, `.values` for a mono list of enum values.
+- **View switch** (`nav.view-switch` in the hero, below `.meta`): a pill-shaped segmented
+  control for a page with two or three parts that are read separately, such as an API
+  contract and its data model. Each tab is a link to the id of a `[data-view]` wrapper in
+  `main .wrap`; the script shows one wrapper at a time and marks its tab with
+  `aria-current="true"`. A link to any element inside a hidden view opens that view and
+  scrolls to it, and the last view chosen is remembered per page in `localStorage`. Each
+  view stacks its sections with the same 72px gap as `main .wrap`. Use it only when the
+  parts have different readers; a long page for one reader keeps one column.
+- **Collapsible task** (`.task-list` > `details.task`): one row per item of a plan, a
+  checklist or a reference list, closed by default. The `summary` holds a mono
+  `.task-id` in the accent text colour, the `.task-title` and `.chip`s in `.task-meta`
+  (difficulty, dependencies). The `.task-body` takes plain HTML: micro-type `h4` labels,
+  lists, `blockquote` for a pointer to follow and `pre`. Put a `.task-tools` row with two
+  `button[data-tasks="open"|"close"]` under the section head to open or close every task
+  in that section. A `ul.checklist` draws empty boxes for a checkpoint; it is a list to
+  read, not a form.
+
+Use these instead of page-local CSS. A page that needs another component gets it
+added to the template first.
 
 ## Gotchas
 
