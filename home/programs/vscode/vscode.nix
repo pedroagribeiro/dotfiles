@@ -6,7 +6,8 @@
   ...
 }:
 {
-  home.packages = with pkgs; [
+  # On macOS the app is installed outside Nix, in /Applications
+  home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     pkgs.unstable.vscode
   ];
 

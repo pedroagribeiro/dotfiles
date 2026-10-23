@@ -23,7 +23,7 @@ in
 
   # Editors & IDEs
   dotfiles.programs.nvim.enable = true;
-  dotfiles.programs.vscode.enable = false;
+  dotfiles.programs.vscode.enable = enableFor [ "MacBook-Pro-de-Healthium-6" ];
 
   # Programming Languages
   dotfiles.programs.elixir.enable = false;

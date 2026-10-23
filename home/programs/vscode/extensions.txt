@@ -66,6 +66,7 @@ phoenixframework.phoenix
 pinage404.nix-extension-pack
 pkief.material-icon-theme
 pomdtr.excalidraw-editor
+qufiwefefwoyn.kanagawa
 qwtel.sqlite-viewer
 repreng.csv
 rust-lang.rust-analyzer
