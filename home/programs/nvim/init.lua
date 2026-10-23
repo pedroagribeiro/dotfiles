@@ -14,4 +14,4 @@ require("keymaps")
 require("commands")
 require("plugins")
 
--- The colorscheme is pinned to Catppuccin Macchiato (catppuccin/nvim) in plugins.lua.
+-- The colorscheme is pinned to Kanagawa Dragon (rebelot/kanagawa.nvim) in plugins.lua.

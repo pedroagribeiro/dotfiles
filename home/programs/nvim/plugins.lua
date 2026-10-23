@@ -28,41 +28,43 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
   {
-    -- Catppuccin Macchiato. Loaded first (priority) so lualine's `theme = "auto"`
+    -- Kanagawa Dragon. Loaded first (priority) so lualine's `theme = "auto"`
     -- picks up its colours, and transparent so Ghostty's `background-opacity`
-    -- still shows through. `auto_integrations` themes the installed plugins
-    -- (barbar, telescope, neo-tree, ...) from lazy.nvim's list, and those
-    -- follow `transparent_background` too. vscode2026.lua is kept for
-    -- switching back: replace this entry with
-    -- `require("vscode2026").load("dark")` above the table.
-    "catppuccin/nvim",
-    name = "catppuccin",
+    -- still shows through. The gutter would otherwise keep its own bg_gutter
+    -- strip, so it's cleared too. vscode2026.lua is kept for switching back:
+    -- replace this entry with `require("vscode2026").load("dark")` above the
+    -- table.
+    "rebelot/kanagawa.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      -- The barbar integration and TabLine ignore `transparent_background`
-      -- and paint mantle/crust, so the top strip would cover the desktop.
-      -- Clear the background of everything but the current buffer, which
-      -- keeps its surface1 pill. Overrides merge into each group, so `fg`
-      -- stays as catppuccin set it.
-      local clear = { TabLine = { bg = "NONE" }, TabLineFill = { bg = "NONE" } }
-      for _, state in ipairs({ "Visible", "Inactive" }) do
-        for _, part in ipairs({ "", "Index", "Mod", "Sign", "Target" }) do
-          clear["Buffer" .. state .. part] = { bg = "NONE" }
-        end
-      end
-      clear.BufferTabpage = { bg = "NONE" }
-      clear.BufferTabpages = { bg = "NONE" }
-      clear.BufferTabpageFill = { bg = "NONE" }
-
-      require("catppuccin").setup({
-        flavour = "macchiato",
-        transparent_background = true,
-        auto_integrations = true,
-        custom_highlights = clear,
+      require("kanagawa").setup({
+        theme = "dragon",
+        background = { dark = "dragon" },
+        transparent = true,
+        colors = { theme = { all = { ui = { bg_gutter = "none" } } } },
+        -- TabLine ignores `transparent` and paints its own strip, so the top
+        -- row would cover the desktop. barbar derives its inactive/visible
+        -- buffers from TabLine and falls back to StatusLine's bg, so that one
+        -- is cleared too (lualine draws the statusline, so it isn't seen).
+        -- The current buffer comes from TabLineSel and keeps its pill.
+        overrides = function()
+          return {
+            TabLine = { bg = "NONE" },
+            TabLineFill = { bg = "NONE" },
+            StatusLine = { bg = "NONE" },
+          }
+        end,
       })
-      vim.cmd.colorscheme("catppuccin")
+      vim.cmd.colorscheme("kanagawa-dragon")
     end,
+  },
+  {
+    -- Catppuccin Macchiato, the previous theme. Installed but not loaded; to
+    -- switch back, `:colorscheme catppuccin-macchiato`, or move the
+    -- `lazy = false` / `priority` / `config` from the entry above to here.
+    "catppuccin/nvim",
+    name = "catppuccin",
   },
   {
     "folke/tokyonight.nvim",

@@ -1,0 +1,35 @@
+{
+  "name": "Kanagawa Dragon",
+  "base": "dark",
+  "overrides": {
+    "claude": "#b6927b",
+    "text": "#c5c9c5",
+    "inverseText": "#181616",
+    "inactive": "#737c73",
+    "subtle": "#625e5a",
+    "permission": "#8ba4b0",
+    "remember": "#a292a3",
+
+    "success": "#87a987",
+    "error": "#c4746e",
+    "warning": "#c4b28a",
+    "merged": "#8992a7",
+
+    "promptBorder": "#393836",
+    "planMode": "#8ea4a2",
+    "autoAccept": "#87a987",
+    "bashBorder": "#b98d7b",
+    "ide": "#8ba4b0",
+    "fastMode": "#c4b28a",
+
+    "diffAdded": "#2b3328",
+    "diffRemoved": "#43242b",
+    "diffAddedDimmed": "#1f241d",
+    "diffRemovedDimmed": "#2c1b1f",
+    "diffAddedWord": "#3d5a3a",
+    "diffRemovedWord": "#6a3138",
+
+    "userMessageBackground": "#282727",
+    "selectionBg": "#393836"
+  }
+}
